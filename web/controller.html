@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slideshow Controller</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1> Slideshow Controller</h1>
+            <p>Manage your markdown-based presentations</p>
+            <div class="connection-status disconnected" id="connectionStatus">
+                Connecting...
+            </div>
+        </div>
+ 
+        <div class="section">
+            <h2>Current Status</h2>
+            <div class="status">
+                <div class="status-item">
+                    <div class="status-label">Active Slideshow</div>
+                    <div class="status-value" id="currentSlideshow">None</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-label">Current Slide</div>
+                    <div class="status-value" id="currentSlide">0 / 0</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-label">Status</div>
+                    <div class="status-value" id="playStatus">Stopped</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-label">Timer</div>
+                    <div class="status-value" id="slideTimer">--:--</div>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button class="btn btn-success" onclick="play()" title="Start slideshow presentation">
+                    <img src="icons/play.svg" class="icon" alt="Play">
+                </button>
+                <button class="btn btn-warning" onclick="pause()" title="Pause current slideshow">
+                    <img src="icons/pause.svg" class="icon" alt="Pause">
+                </button>
+                <button class="btn btn-primary" onclick="previousSlide()" title="Go to previous slide">
+                    <img src="icons/previous.svg" class="icon" alt="Previous">
+                </button>
+                <button class="btn btn-primary" onclick="nextSlide()" title="Go to next slide">
+                    <img src="icons/next.svg" class="icon" alt="Next">
+                </button>
+                <button class="btn btn-primary" onclick="refreshSlideshows()" title="Reload slideshow list">
+                    <img src="icons/refresh.svg" class="icon" alt="Refresh">
+                </button>
+                <button class="btn btn-info" id="editSlideshowBtn" onclick="editCurrentSlideshow()" style="display: none;" title="Edit current slideshow">
+                    <img src="icons/edit.svg" class="icon" alt="Edit">
+                </button>
+                <button class="btn btn-danger" id="removeSlideshowBtn" onclick="removeCurrentSlideshow()" style="display: none;" title="Delete current slideshow">
+                    <img src="icons/delete.svg" class="icon" alt="Delete">
+                </button>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Upload PowerPoint</h2>
+            <div class="upload-section">
+                <form id="uploadForm" enctype="multipart/form-data">
+                    <div class="upload-controls">
+                        <div class="upload-field">
+                            <label for="pptxFile">Select PPTX file:</label>
+                            <input type="file" id="pptxFile" name="file" accept=".pptx" required>
+                        </div>
+                        <div class="upload-field">
+                            <label for="slideshowName">Slideshow name:</label>
+                            <input type="text" id="slideshowName" name="name" placeholder="My Presentation" required>
+                        </div>
+                        <button type="submit" class="btn btn-success" id="uploadBtn" title="Upload PowerPoint file as new slideshow">
+                            <img src="icons/upload.svg" class="icon" alt="Upload">Upload
+                        </button>
+                    </div>
+                </form>
+                <div id="uploadStatus" class="upload-status"></div>
+            </div>
+        </div>
+
+
+        <div class="section">
+            <h2>Available Slideshows</h2>
+            <div class="slideshow-list" id="slideshowList">
+                <div class="slideshow-list-loading">
+                    <p>Loading slideshows...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="viewer-link">
+            <a href="viewer.html" target="_blank">Open Viewer</a>
+            <a href="editor.html" target="_blank">Open Editor</a>
+        </div>
+    </div>
+
+    <script>
+        class SlideshowController {
+            constructor() {
+                this.ws = null;
+                this.currentState = {
+                    slideshows: [],
+                    current_slideshow: null,
+                    current_slide: 0,
+                    playing: false
+                };
+                
+                // Timer properties
+                this.slideStartTime = null;
+                this.slideDuration = 0;
+                this.timerInterval = null;
+                
+                this.connectWebSocket();
+                this.startTimer();
+            }
+
+            connectWebSocket() {
+                try {
+                    // Use current host instead of hardcoded localhost for network access
+                    const wsUrl = `ws://${window.location.hostname}:50001`;
+                    this.ws = new WebSocket(wsUrl);
+                    
+                    this.ws.onopen = () => {
+                        console.log('Connected to slideshow server');
+                        this.updateConnectionStatus(true);
+                        this.refreshSlideshows();
+                    };
+
+                    this.ws.onmessage = (event) => {
+                        const data = JSON.parse(event.data);
+                        
+                        if (data.type === 'slideshows_update') {
+                            // Update the slideshows list
+                            this.currentState.slideshows = data.slideshows;
+                            this.updateUI();
+                            return;
+                        }
+                        
+                        // Handle state updates
+                        if (data.type === 'state_update' || !data.type) {
+                            // Check if slide changed to reset timer
+                            const previousSlide = this.currentState.current_slide;
+                            const previousSlideshow = this.currentState.current_slideshow?.id;
+                            
+                            // Update the state
+                            Object.assign(this.currentState, data);
+                            
+                            // Reset timer if slide or slideshow changed
+                            if (this.currentState.current_slide !== previousSlide || 
+                                this.currentState.current_slideshow?.id !== previousSlideshow) {
+                                this.slideStartTime = this.currentState.playing ? Date.now() : null;
+                            }
+                            
+                            this.updateUI();
+                        }
+                    };
+
+                    this.ws.onclose = () => {
+                        console.log('Disconnected from server');
+                        this.updateConnectionStatus(false);
+                        // Try to reconnect after 3 seconds
+                        setTimeout(() => this.connectWebSocket(), 3000);
+                    };
+
+                } catch (error) {
+                    console.error('WebSocket connection error:', error);
+                    this.updateConnectionStatus(false);
+                }
+            }
+
+            updateConnectionStatus(connected) {
+                const statusEl = document.getElementById('connectionStatus');
+                if (connected) {
+                    statusEl.textContent = 'Connected';
+                    statusEl.className = 'connection-status connected';
+                } else {
+                    statusEl.textContent = 'Disconnected';
+                    statusEl.className = 'connection-status disconnected';
+                }
+            }
+
+            updateUI() {
+                this.updateCurrentStatus();
+                this.updateSlideshowList();
+            }
+
+            updateCurrentStatus() {
+                const slideshowEl = document.getElementById('currentSlideshow');
+                const slideEl = document.getElementById('currentSlide');
+                const statusEl = document.getElementById('playStatus');
+                const editBtn = document.getElementById('editSlideshowBtn');
+                const removeBtn = document.getElementById('removeSlideshowBtn');
+
+                if (this.currentState.current_slideshow) {
+                    slideshowEl.textContent = this.currentState.current_slideshow.name;
+                    
+                    // Show edit and remove buttons when slideshow is loaded
+                    editBtn.style.display = 'inline-block';
+                    removeBtn.style.display = 'inline-block';
+                    
+                    const current = this.currentState.current_slide + 1;
+                    const total = this.currentState.current_slideshow.slides.length;
+                    slideEl.textContent = `${current} / ${total}`;
+                    
+                    // Update slide duration when slide changes
+                    this.updateSlideDuration();
+                } else {
+                    slideshowEl.textContent = 'None';
+                    slideEl.textContent = '0 / 0';
+                    this.slideDuration = 0;
+                    
+                    // Hide edit and remove buttons when no slideshow is loaded
+                    editBtn.style.display = 'none';
+                    removeBtn.style.display = 'none';
+                }
+
+                statusEl.textContent = this.currentState.playing ? 'Playing' : 'Stopped';
+                
+                // Reset timer when status changes
+                if (this.currentState.playing && this.slideStartTime === null) {
+                    this.slideStartTime = Date.now();
+                } else if (!this.currentState.playing) {
+                    this.slideStartTime = null;
+                }
+            }
+
+            updateSlideshowList() {
+                const listEl = document.getElementById('slideshowList');
+                
+                if (!this.currentState.slideshows || this.currentState.slideshows.length === 0) {
+                    listEl.innerHTML = `
+                        <div class="slideshow-list-empty">
+                            <h3>No slideshows found</h3>
+                            <p>Create a slideshow by adding a folder in the 'slideshows' directory</p>
+                            <p>Each folder should contain a config.json and slides.md file</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                listEl.innerHTML = '';
+                
+                this.currentState.slideshows.forEach(slideshow => {
+                    const isActive = this.currentState.current_slideshow?.id === slideshow.id;
+                    
+                    const card = document.createElement('div');
+                    card.className = `slideshow-card${isActive ? ' active' : ''}`;
+                    
+                    card.innerHTML = `
+                        <div class="card-header">
+                            <div class="card-title">${slideshow.name}</div>
+                            <div class="card-meta">
+                                ${slideshow.slides.length} slides  
+                                Theme: ${slideshow.config.theme || 'default'}
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="card-controls">
+                                <button class="btn btn-primary btn-small" onclick="loadSlideshow('${slideshow.id}')" title="Load this slideshow">
+                                    <img src="icons/load.svg" class="icon" alt="Load">
+                                </button>
+                                <button class="btn btn-success btn-small" onclick="loadAndPlay('${slideshow.id}')" title="Load and start playing this slideshow">
+                                    <img src="icons/play.svg" class="icon" alt="Play">
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    
+                    listEl.appendChild(card);
+                });
+            }
+
+            sendCommand(command, params = {}) {
+                if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+                    this.ws.send(JSON.stringify({ command, params }));
+                }
+            }
+
+            loadSlideshow(id) {
+                this.sendCommand('load_slideshow', { id });
+            }
+
+            loadAndPlay(id) {
+                this.sendCommand('load_slideshow', { id });
+                setTimeout(() => this.sendCommand('play'), 100);
+            }
+
+            play() {
+                this.sendCommand('play');
+            }
+
+            pause() {
+                this.sendCommand('pause');
+            }
+
+            nextSlide() {
+                this.sendCommand('next_slide');
+            }
+
+            previousSlide() {
+                this.sendCommand('prev_slide');
+            }
+
+            refreshSlideshows() {
+                this.sendCommand('refresh_slideshows');
+            }
+
+            updateSlideDuration() {
+                if (this.currentState.current_slideshow && this.currentState.current_slideshow.slides) {
+                    const currentSlide = this.currentState.current_slideshow.slides[this.currentState.current_slide];
+                    if (currentSlide) {
+                        // Get duration from slide meta or use default
+                        this.slideDuration = currentSlide.duration || 
+                                           currentSlide.meta?.duration || 
+                                           this.currentState.current_slideshow.config?.defaultDuration || 
+                                           6000;
+                        
+                        // Reset timer when slide changes
+                        this.slideStartTime = this.currentState.playing ? Date.now() : null;
+                    }
+                }
+            }
+
+            startTimer() {
+                if (this.timerInterval) {
+                    clearInterval(this.timerInterval);
+                }
+                
+                this.timerInterval = setInterval(() => {
+                    this.updateTimerDisplay();
+                }, 100); // Update every 100ms for smooth countdown
+            }
+
+            updateTimerDisplay() {
+                const timerEl = document.getElementById('slideTimer');
+                
+                if (!this.currentState.playing || !this.slideStartTime || this.slideDuration === 0) {
+                    timerEl.textContent = '--:--';
+                    return;
+                }
+                
+                const elapsed = Date.now() - this.slideStartTime;
+                const remaining = Math.max(0, this.slideDuration - elapsed);
+                
+                const minutes = Math.floor(remaining / 60000);
+                const seconds = Math.floor((remaining % 60000) / 1000);
+                const centiseconds = Math.floor((remaining % 1000) / 10);
+                
+                if (remaining > 0) {
+                    timerEl.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}.${centiseconds.toString().padStart(2, '0')}`;
+                } else {
+                    timerEl.textContent = '0:00.00';
+                }
+            }
+        }
+
+        // Global functions for buttons
+        let controller;
+
+        function loadSlideshow(id) {
+            controller.loadSlideshow(id);
+        }
+
+        function loadAndPlay(id) {
+            controller.loadAndPlay(id);
+        }
+
+        function play() {
+            controller.play();
+        }
+
+        function pause() {
+            controller.pause();
+        }
+
+        function nextSlide() {
+            controller.nextSlide();
+        }
+
+        function previousSlide() {
+            controller.previousSlide();
+        }
+
+        function refreshSlideshows() {
+            controller.refreshSlideshows();
+        }
+
+        function editCurrentSlideshow() {
+            if (controller.currentState.current_slideshow) {
+                console.log('Slideshow type:', controller.currentState.current_slideshow.type);
+                
+                // Log each slide before processing
+                controller.currentState.current_slideshow.slides.forEach((slide, index) => {
+                });
+                
+                // Convert the current slideshow to the format expected by the editor
+                const slideshowData = {
+                    name: controller.currentState.current_slideshow.name,
+                    slides: controller.currentState.current_slideshow.slides.map((slide, index) => {
+                        const processedSlide = {
+                            html: slide.content || slide.html || '',
+                            duration: slide.duration || slide.meta?.duration || 6000,
+                            bgColor: slide.bgColor || slide.background || '#f7ecd0'
+                        };
+                        
+                        
+                        return processedSlide;
+                    })
+                };
+                
+                
+                // Store the slideshow data in sessionStorage for the editor to pick up
+                sessionStorage.setItem('editorSlideshowData', JSON.stringify(slideshowData));
+                sessionStorage.setItem('editorSlideshowId', controller.currentState.current_slideshow.id || '');
+                
+                
+                // Open the editor in a new tab/window
+                window.open('editor.html', '_blank');
+            } else {
+                alert('No slideshow is currently loaded.');
+            }
+        }
+
+        function removeCurrentSlideshow() {
+            if (controller.currentState.current_slideshow) {
+                const slideshowName = controller.currentState.current_slideshow.name;
+                const slideshowId = controller.currentState.current_slideshow.id;
+                
+                if (confirm(`Are you sure you want to delete the slideshow "${slideshowName}"? This action cannot be undone.`)) {
+                    // Send delete request to server
+                    fetch('/api/delete_slideshow', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ id: slideshowId })
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            alert(`Slideshow "${slideshowName}" has been deleted successfully.`);
+                            // Refresh the slideshow list
+                            controller.refreshSlideshows();
+                        } else {
+                            throw new Error('Failed to delete slideshow');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error deleting slideshow:', error);
+                        alert('Failed to delete slideshow. Please try again.');
+                    });
+                }
+            } else {
+                alert('No slideshow is currently loaded.');
+            }
+        }
+
+        // Upload functionality
+        function initializeUpload() {
+            const uploadForm = document.getElementById('uploadForm');
+            const uploadStatus = document.getElementById('uploadStatus');
+            const uploadBtn = document.getElementById('uploadBtn');
+            const fileInput = document.getElementById('pptxFile');
+            const nameInput = document.getElementById('slideshowName');
+
+            // Auto-fill slideshow name from file name
+            fileInput.addEventListener('change', function() {
+                if (this.files.length > 0 && !nameInput.value) {
+                    const fileName = this.files[0].name;
+                    const nameWithoutExt = fileName.replace(/\.[^/.]+$/, "");
+                    nameInput.value = nameWithoutExt;
+                }
+            });
+
+            uploadForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(uploadForm);
+                const file = fileInput.files[0];
+                
+                if (!file) {
+                    showUploadStatus('Please select a file', 'error');
+                    return;
+                }
+                
+                if (!file.name.toLowerCase().endsWith('.pptx')) {
+                    showUploadStatus('Please select a PPTX file', 'error');
+                    return;
+                }
+                
+                // Show uploading status
+                uploadBtn.disabled = true;
+                uploadBtn.innerHTML = '<img src="icons/convert.svg" class="icon" alt="Converting">Converting...';
+                showUploadStatus('Uploading and converting PowerPoint file...', 'info');
+                
+                try {
+                    const response = await fetch('/api/upload_pptx', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (response.ok && result.success) {
+                        showUploadStatus(
+                            `Success! Converted ${result.slides} slides. Slideshow "${result.filename}" is ready to use.`, 
+                            'success'
+                        );
+                        uploadForm.reset();
+                        nameInput.value = '';
+                        
+                        // Refresh slideshows list
+                        controller.refreshSlideshows();
+                    } else {
+                        throw new Error(result.message || 'Upload failed');
+                    }
+                } catch (error) {
+                    console.error('Upload error:', error);
+                    showUploadStatus(`Upload failed: ${error.message}`, 'error');
+                } finally {
+                    uploadBtn.disabled = false;
+                    uploadBtn.innerHTML = '<img src="icons/upload.svg" class="icon" alt="Upload">Upload';
+                }
+            });
+        }
+
+        function showUploadStatus(message, type) {
+            const statusEl = document.getElementById('uploadStatus');
+            statusEl.textContent = message;
+            statusEl.className = `upload-status ${type}`;
+            
+            if (type === 'success') {
+                setTimeout(() => {
+                    statusEl.textContent = '';
+                    statusEl.className = 'upload-status';
+                }, 5000);
+            }
+        }
+
+        // Start the controller
+        controller = new SlideshowController();
+        
+        // Initialize upload functionality
+        initializeUpload();
+    </script>
+</body>
+</html>

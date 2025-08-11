@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            margin: 0; 
+            padding: 0; 
+            background: #f8f9fa;
+            line-height: 1.6;
+        }
+        
+        .nav-bar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+        
+        .nav-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 0;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.1);
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+        
+        .nav-links a:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+        }
+        
+        .nav-links a.active {
+            background: rgba(255,255,255,0.3);
+            font-weight: bold;
+        }
+        
+        .content-wrapper {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .module-header {
+            background: linear-gradient(45deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 30px;
+            margin: 0 -20px 20px -20px;
+        }
+        
+        .module-title {
+            font-size: 32px;
+            margin: 0 0 10px 0;
+            font-weight: 300;
+        }
+        
+        .module-path {
+            font-size: 16px;
+            opacity: 0.9;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .content {
+            padding: 20px;
+        }
+        
+        /* Style existing pydoc elements */
+        tt, code {
+            background: #f8f9fa;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            border: 1px solid #e9ecef;
+        }
+        
+        pre {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            overflow-x: auto;
+        }
+        
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        
+        th, td {
+            border: 1px solid #dee2e6;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 30px;
+            background: #f8f9fa;
+            margin-top: 40px;
+            color: #6c757d;
+            border-top: 1px solid #dee2e6;
+        }
+        
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .nav-container {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .nav-links {
+                justify-content: center;
+            }
+            
+            .content-wrapper {
+                margin: 10px;
+                padding: 0 15px;
+            }
+            
+            .module-title {
+                font-size: 24px;
+            }
+        }
+    </style>
+    
+<meta charset="utf-8">
+<title>Python: module src.utils</title>
+</head><body>
+    <div class="nav-bar">
+        <div class="nav-container">
+            <h1 class="nav-title">Presentator Docs</h1>
+            <div class="nav-links">
+                <a href="index.html"> Home</a>
+                    <a href="app.html" class="">Main Application</a>
+                <a href="src.http_server.html" class="">HTTP Server</a>
+                <a href="src.slideshow_manager.html" class="">Slideshow Manager</a>
+                <a href="src.websocket_manager.html" class="">WebSocket Manager</a>
+                <a href="src.pptx_parse.html" class="">PowerPoint Parser</a>
+                <a href="src.utils.html" class=" active">Utilities</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="content-wrapper">
+        <div class="module-header">
+            <h1 class="module-title">Utilities</h1>
+            <div class="module-path">src/utils.py</div>
+        </div>
+        <div class="content">
+    
+
+<table class="heading">
+<tr class="heading-text decor">
+<td class="title">&nbsp;<br><strong class="title"><a href="src.html" class="white">src</a>.utils</strong></td>
+<td class="extra"><a href=".">index</a><br><a href="file:c%3A%5Cusers%5Csimon.raus%5Cdocuments%5Cmonitor-controller%5Csrc%5Cutils.py">c:\users\simon.raus\documents\monitor-controller\src\utils.py</a></td></tr></table>
+    <p><span class="code">Utility&nbsp;Functions&nbsp;Module&nbsp;for&nbsp;Presentator<br>
+&nbsp;<br>
+This&nbsp;module&nbsp;provides&nbsp;common&nbsp;utility&nbsp;functions&nbsp;for&nbsp;network&nbsp;operations,<br>
+file&nbsp;handling,&nbsp;and&nbsp;system-level&nbsp;tasks&nbsp;used&nbsp;throughout&nbsp;the&nbsp;Presentator<br>
+application.&nbsp;Contains&nbsp;helper&nbsp;functions&nbsp;for&nbsp;IP&nbsp;detection,&nbsp;port&nbsp;management,<br>
+and&nbsp;other&nbsp;system&nbsp;utilities.</span></p>
+<p>
+<table class="section">
+<tr class="decor pkg-content-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Modules</strong></td></tr>
+    
+<tr><td class="decor pkg-content-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><table><tr><td class="multicolumn"><a href="socket.html">socket</a><br>
+</td><td class="multicolumn"></td><td class="multicolumn"></td><td class="multicolumn"></td></tr></table></td></tr></table><p>
+<table class="section">
+<tr class="decor functions-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Functions</strong></td></tr>
+    
+<tr><td class="decor functions-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><dl><dt><a name="-get_available_port"><strong>get_available_port</strong></a>(start_port=50000, max_attempts=100)</dt><dd><span class="code">Find&nbsp;an&nbsp;available&nbsp;port&nbsp;starting&nbsp;from&nbsp;the&nbsp;specified&nbsp;port&nbsp;number.<br>
+&nbsp;<br>
+Searches&nbsp;for&nbsp;an&nbsp;available&nbsp;TCP&nbsp;port&nbsp;by&nbsp;attempting&nbsp;to&nbsp;bind&nbsp;to&nbsp;sequential<br>
+port&nbsp;numbers&nbsp;starting&nbsp;from&nbsp;the&nbsp;given&nbsp;port.&nbsp;Useful&nbsp;for&nbsp;dynamic&nbsp;port<br>
+allocation&nbsp;when&nbsp;default&nbsp;ports&nbsp;might&nbsp;be&nbsp;in&nbsp;use.<br>
+&nbsp;<br>
+Args:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;start_port&nbsp;(int):&nbsp;Starting&nbsp;port&nbsp;number&nbsp;to&nbsp;check&nbsp;(default:&nbsp;50000)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;max_attempts&nbsp;(int):&nbsp;Maximum&nbsp;number&nbsp;of&nbsp;ports&nbsp;to&nbsp;try&nbsp;(default:&nbsp;100)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<br>
+Returns:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;int:&nbsp;First&nbsp;available&nbsp;port&nbsp;number&nbsp;found<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<br>
+Raises:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;RuntimeError:&nbsp;If&nbsp;no&nbsp;available&nbsp;ports&nbsp;are&nbsp;found&nbsp;in&nbsp;the&nbsp;specified&nbsp;range<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<br>
+Example:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&gt;&gt;&gt;&nbsp;port&nbsp;=&nbsp;<a href="#-get_available_port">get_available_port</a>(8000,&nbsp;50)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&gt;&gt;&gt;&nbsp;print(f"Using&nbsp;port:&nbsp;{port}")</span></dd></dl>
+ <dl><dt><a name="-get_local_ip"><strong>get_local_ip</strong></a>()</dt><dd><span class="code">Get&nbsp;the&nbsp;local&nbsp;IP&nbsp;address&nbsp;of&nbsp;this&nbsp;machine.<br>
+&nbsp;<br>
+Determines&nbsp;the&nbsp;local&nbsp;IP&nbsp;address&nbsp;by&nbsp;connecting&nbsp;to&nbsp;a&nbsp;remote&nbsp;server<br>
+and&nbsp;checking&nbsp;the&nbsp;local&nbsp;socket&nbsp;address.&nbsp;Falls&nbsp;back&nbsp;to&nbsp;localhost<br>
+if&nbsp;unable&nbsp;to&nbsp;determine&nbsp;the&nbsp;actual&nbsp;IP.<br>
+&nbsp;<br>
+Returns:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;str:&nbsp;Local&nbsp;IP&nbsp;address&nbsp;(e.g.,&nbsp;"192.168.1.100")&nbsp;or&nbsp;"127.0.0.1"&nbsp;as&nbsp;fallback<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<br>
+Note:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Uses&nbsp;Google's&nbsp;DNS&nbsp;server&nbsp;(8.8.8.8)&nbsp;as&nbsp;a&nbsp;reference&nbsp;point&nbsp;for<br>
+&nbsp;&nbsp;&nbsp;&nbsp;determining&nbsp;the&nbsp;outbound&nbsp;network&nbsp;interface.</span></dd></dl>
+ <dl><dt><a name="-log"><strong>log</strong></a>(message, level='INFO')</dt><dd><span class="code">Simple&nbsp;logging&nbsp;function&nbsp;to&nbsp;print&nbsp;messages&nbsp;with&nbsp;a&nbsp;level&nbsp;prefix.<br>
+&nbsp;<br>
+Args:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;message&nbsp;(str):&nbsp;The&nbsp;message&nbsp;to&nbsp;log<br>
+&nbsp;&nbsp;&nbsp;&nbsp;level&nbsp;(str):&nbsp;Log&nbsp;level&nbsp;(e.g.,&nbsp;'INFO',&nbsp;'ERROR',&nbsp;'DEBUG')<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<br>
+Example:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&gt;&gt;&gt;&nbsp;<a href="#-log">log</a>("Application&nbsp;started",&nbsp;"INFO")<br>
+&nbsp;&nbsp;&nbsp;&nbsp;INFO:&nbsp;Application&nbsp;started</span></dd></dl>
+ <dl><dt><a name="-validate_slideshow_data"><strong>validate_slideshow_data</strong></a>(data)</dt><dd><span class="code">Validate&nbsp;slideshow&nbsp;data&nbsp;structure.</span></dd></dl>
+</td></tr></table>
+</body></html>
+        </div>
+    </div>
+    <div class="footer">
+        <p>Generated with pydoc for Presentator System | 
+        <a href="https://github.com/ArsuMinSo/Monitor_vyroba" style="color: #667eea;">View on GitHub</a></p>
+    </div>
+    

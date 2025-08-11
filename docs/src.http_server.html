@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            margin: 0; 
+            padding: 0; 
+            background: #f8f9fa;
+            line-height: 1.6;
+        }
+        
+        .nav-bar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+        
+        .nav-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 0;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.1);
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+        
+        .nav-links a:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+        }
+        
+        .nav-links a.active {
+            background: rgba(255,255,255,0.3);
+            font-weight: bold;
+        }
+        
+        .content-wrapper {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .module-header {
+            background: linear-gradient(45deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 30px;
+            margin: 0 -20px 20px -20px;
+        }
+        
+        .module-title {
+            font-size: 32px;
+            margin: 0 0 10px 0;
+            font-weight: 300;
+        }
+        
+        .module-path {
+            font-size: 16px;
+            opacity: 0.9;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .content {
+            padding: 20px;
+        }
+        
+        /* Style existing pydoc elements */
+        tt, code {
+            background: #f8f9fa;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            border: 1px solid #e9ecef;
+        }
+        
+        pre {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            overflow-x: auto;
+        }
+        
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        
+        th, td {
+            border: 1px solid #dee2e6;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 30px;
+            background: #f8f9fa;
+            margin-top: 40px;
+            color: #6c757d;
+            border-top: 1px solid #dee2e6;
+        }
+        
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .nav-container {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .nav-links {
+                justify-content: center;
+            }
+            
+            .content-wrapper {
+                margin: 10px;
+                padding: 0 15px;
+            }
+            
+            .module-title {
+                font-size: 24px;
+            }
+        }
+    </style>
+    
+<meta charset="utf-8">
+<title>Python: module src.http_server</title>
+</head><body>
+    <div class="nav-bar">
+        <div class="nav-container">
+            <h1 class="nav-title">Presentator Docs</h1>
+            <div class="nav-links">
+                <a href="index.html"> Home</a>
+                    <a href="app.html" class="">Main Application</a>
+                <a href="src.http_server.html" class=" active">HTTP Server</a>
+                <a href="src.slideshow_manager.html" class="">Slideshow Manager</a>
+                <a href="src.websocket_manager.html" class="">WebSocket Manager</a>
+                <a href="src.pptx_parse.html" class="">PowerPoint Parser</a>
+                <a href="src.utils.html" class="">Utilities</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="content-wrapper">
+        <div class="module-header">
+            <h1 class="module-title">HTTP Server</h1>
+            <div class="module-path">src/http_server.py</div>
+        </div>
+        <div class="content">
+    
+
+<table class="heading">
+<tr class="heading-text decor">
+<td class="title">&nbsp;<br><strong class="title"><a href="src.html" class="white">src</a>.http_server</strong></td>
+<td class="extra"><a href=".">index</a><br><a href="file:c%3A%5Cusers%5Csimon.raus%5Cdocuments%5Cmonitor-controller%5Csrc%5Chttp_server.py">c:\users\simon.raus\documents\monitor-controller\src\http_server.py</a></td></tr></table>
+    <p><span class="code">HTTP&nbsp;Server&nbsp;Module&nbsp;for&nbsp;Presentator<br>
+&nbsp;<br>
+This&nbsp;module&nbsp;provides&nbsp;HTTP&nbsp;server&nbsp;functionality&nbsp;with&nbsp;REST&nbsp;API&nbsp;endpoints<br>
+for&nbsp;slideshow&nbsp;management,&nbsp;file&nbsp;serving,&nbsp;and&nbsp;PowerPoint&nbsp;conversion.<br>
+Handles&nbsp;web&nbsp;interface&nbsp;serving&nbsp;and&nbsp;API&nbsp;communication&nbsp;between&nbsp;frontend&nbsp;and&nbsp;backend.</span></p>
+<p>
+<table class="section">
+<tr class="decor pkg-content-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Modules</strong></td></tr>
+    
+<tr><td class="decor pkg-content-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><table><tr><td class="multicolumn"><a href="http.html">http</a><br>
+</td><td class="multicolumn"><a href="json.html">json</a><br>
+</td><td class="multicolumn"><a href="socketserver.html">socketserver</a><br>
+</td><td class="multicolumn"></td></tr></table></td></tr></table><p>
+<table class="section">
+<tr class="decor index-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Classes</strong></td></tr>
+    
+<tr><td class="decor index-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><dl>
+<dt class="heading-text"><a href="http.server.html#SimpleHTTPRequestHandler">http.server.SimpleHTTPRequestHandler</a>(<a href="http.server.html#BaseHTTPRequestHandler">http.server.BaseHTTPRequestHandler</a>)
+</dt><dd>
+<dl>
+<dt class="heading-text"><a href="src.http_server.html#CustomHTTPRequestHandler">CustomHTTPRequestHandler</a>
+</dt></dl>
+</dd>
+</dl>
+ <p>
+<table class="section">
+<tr class="decor title-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><a name="CustomHTTPRequestHandler">class <strong>CustomHTTPRequestHandler</strong></a>(<a href="http.server.html#SimpleHTTPRequestHandler">http.server.SimpleHTTPRequestHandler</a>)</td></tr>
+    
+<tr><td class="decor title-decor" rowspan=2><span class="code">&nbsp;&nbsp;&nbsp;</span></td>
+<td class="decor title-decor" colspan=2><span class="code"><a href="#CustomHTTPRequestHandler">CustomHTTPRequestHandler</a>(<br>
+&nbsp;&nbsp;&nbsp;&nbsp;*args,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;slideshow_manager=None,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;websocket_manager=None,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;**kwargs<br>
+)<br>
+&nbsp;<br>
+Custom&nbsp;HTTP&nbsp;request&nbsp;handler&nbsp;for&nbsp;Presentator&nbsp;API&nbsp;and&nbsp;web&nbsp;serving.<br>
+&nbsp;<br>
+Extends&nbsp;<a href="http.server.html#SimpleHTTPRequestHandler">SimpleHTTPRequestHandler</a>&nbsp;to&nbsp;provide:<br>
+-&nbsp;REST&nbsp;API&nbsp;endpoints&nbsp;for&nbsp;slideshow&nbsp;management<br>
+-&nbsp;File&nbsp;serving&nbsp;for&nbsp;web&nbsp;interface&nbsp;and&nbsp;slideshow&nbsp;assets<br>
+-&nbsp;PowerPoint&nbsp;upload&nbsp;and&nbsp;conversion<br>
+-&nbsp;CORS&nbsp;support&nbsp;for&nbsp;cross-origin&nbsp;requests<br>
+&nbsp;<br>
+Attributes:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;slideshow_manager:&nbsp;Instance&nbsp;of&nbsp;SlideShowManager&nbsp;for&nbsp;slideshow&nbsp;operations<br>
+&nbsp;&nbsp;&nbsp;&nbsp;websocket_manager:&nbsp;Instance&nbsp;of&nbsp;WebSocketManager&nbsp;for&nbsp;real-time&nbsp;updates<br>&nbsp;</span></td></tr>
+<tr><td>&nbsp;</td>
+<td class="singlecolumn"><dl><dt>Method resolution order:</dt>
+<dd><a href="src.http_server.html#CustomHTTPRequestHandler">CustomHTTPRequestHandler</a></dd>
+<dd><a href="http.server.html#SimpleHTTPRequestHandler">http.server.SimpleHTTPRequestHandler</a></dd>
+<dd><a href="http.server.html#BaseHTTPRequestHandler">http.server.BaseHTTPRequestHandler</a></dd>
+<dd><a href="socketserver.html#StreamRequestHandler">socketserver.StreamRequestHandler</a></dd>
+<dd><a href="socketserver.html#BaseRequestHandler">socketserver.BaseRequestHandler</a></dd>
+<dd><a href="builtins.html#object">builtins.object</a></dd>
+</dl>
+<hr>
+Methods defined here:<br>
+<dl><dt><a name="CustomHTTPRequestHandler-__init__"><strong>__init__</strong></a>(self, *args, slideshow_manager=None, websocket_manager=None, **kwargs)</dt><dd><span class="code">Initialize&nbsp;the&nbsp;HTTP&nbsp;request&nbsp;handler.<br>
+&nbsp;<br>
+Args:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;slideshow_manager:&nbsp;SlideShowManager&nbsp;instance&nbsp;for&nbsp;slideshow&nbsp;operations<br>
+&nbsp;&nbsp;&nbsp;&nbsp;websocket_manager:&nbsp;WebSocketManager&nbsp;instance&nbsp;for&nbsp;real-time&nbsp;communication<br>
+&nbsp;&nbsp;&nbsp;&nbsp;*args:&nbsp;Positional&nbsp;arguments&nbsp;passed&nbsp;to&nbsp;parent&nbsp;class<br>
+&nbsp;&nbsp;&nbsp;&nbsp;**kwargs:&nbsp;Keyword&nbsp;arguments&nbsp;passed&nbsp;to&nbsp;parent&nbsp;class</span></dd></dl>
+
+<dl><dt><a name="CustomHTTPRequestHandler-do_GET"><strong>do_GET</strong></a>(self)</dt><dd><span class="code">Handle&nbsp;HTTP&nbsp;GET&nbsp;requests.<br>
+&nbsp;<br>
+Routes&nbsp;requests&nbsp;to&nbsp;appropriate&nbsp;handlers:<br>
+-&nbsp;/api/*&nbsp;-&gt;&nbsp;API&nbsp;endpoints<br>
+-&nbsp;/slideshows/*&nbsp;-&gt;&nbsp;Slideshow&nbsp;asset&nbsp;files<br>
+-&nbsp;/*&nbsp;-&gt;&nbsp;Web&nbsp;interface&nbsp;files&nbsp;from&nbsp;/web&nbsp;directory</span></dd></dl>
+
+<dl><dt><a name="CustomHTTPRequestHandler-do_POST"><strong>do_POST</strong></a>(self)</dt><dd><span class="code">Handle&nbsp;HTTP&nbsp;POST&nbsp;requests.<br>
+&nbsp;<br>
+Routes&nbsp;POST&nbsp;requests&nbsp;to&nbsp;API&nbsp;endpoints&nbsp;for&nbsp;data&nbsp;modification&nbsp;operations<br>
+like&nbsp;saving&nbsp;slideshows,&nbsp;uploading&nbsp;files,&nbsp;etc.</span></dd></dl>
+
+<dl><dt><a name="CustomHTTPRequestHandler-handle_api_request"><strong>handle_api_request</strong></a>(self)</dt><dd><span class="code">Route&nbsp;API&nbsp;requests&nbsp;to&nbsp;appropriate&nbsp;handler&nbsp;methods.<br>
+&nbsp;<br>
+Supported&nbsp;endpoints:<br>
+-&nbsp;/api/slideshows:&nbsp;Get&nbsp;list&nbsp;of&nbsp;available&nbsp;slideshows<br>
+-&nbsp;/api/save_slideshow:&nbsp;Save&nbsp;slideshow&nbsp;data<br>
+-&nbsp;/api/load_slideshow:&nbsp;Load&nbsp;specific&nbsp;slideshow<br>
+-&nbsp;/api/delete_slideshow:&nbsp;Delete&nbsp;slideshow<br>
+-&nbsp;/api/upload_pptx:&nbsp;Upload&nbsp;and&nbsp;convert&nbsp;PowerPoint&nbsp;files<br>
+&nbsp;<br>
+Handles&nbsp;exceptions&nbsp;and&nbsp;returns&nbsp;appropriate&nbsp;HTTP&nbsp;error&nbsp;codes.</span></dd></dl>
+
+<dl><dt><a name="CustomHTTPRequestHandler-handle_delete_slideshow"><strong>handle_delete_slideshow</strong></a>(self)</dt><dd><span class="code">Handle&nbsp;POST&nbsp;/api/delete_slideshow&nbsp;endpoint.<br>
+&nbsp;<br>
+Deletes&nbsp;a&nbsp;slideshow&nbsp;from&nbsp;the&nbsp;file&nbsp;system&nbsp;and&nbsp;updates&nbsp;all&nbsp;connected&nbsp;clients.<br>
+&nbsp;<br>
+Request&nbsp;Body:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;JSON&nbsp;object&nbsp;with&nbsp;'id'&nbsp;field&nbsp;containing&nbsp;slideshow&nbsp;identifier<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<br>
+Response:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;200:&nbsp;Success&nbsp;confirmation<br>
+&nbsp;&nbsp;&nbsp;&nbsp;400:&nbsp;Bad&nbsp;request&nbsp;(missing&nbsp;ID&nbsp;or&nbsp;delete&nbsp;error)</span></dd></dl>
+
+<dl><dt><a name="CustomHTTPRequestHandler-handle_get_slideshows"><strong>handle_get_slideshows</strong></a>(self)</dt><dd><span class="code">Handle&nbsp;GET&nbsp;/api/slideshows&nbsp;endpoint.<br>
+&nbsp;<br>
+Returns&nbsp;a&nbsp;JSON&nbsp;list&nbsp;of&nbsp;all&nbsp;available&nbsp;slideshows&nbsp;in&nbsp;the&nbsp;system.<br>
+Also&nbsp;updates&nbsp;connected&nbsp;WebSocket&nbsp;clients&nbsp;with&nbsp;the&nbsp;current&nbsp;slideshow&nbsp;list.<br>
+&nbsp;<br>
+Response:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;200:&nbsp;JSON&nbsp;array&nbsp;of&nbsp;slideshow&nbsp;objects<br>
+&nbsp;&nbsp;&nbsp;&nbsp;500:&nbsp;Internal&nbsp;server&nbsp;error</span></dd></dl>
+
+<dl><dt><a name="CustomHTTPRequestHandler-handle_load_slideshow"><strong>handle_load_slideshow</strong></a>(self)</dt><dd><span class="code">Handle&nbsp;GET/POST&nbsp;/api/load_slideshow&nbsp;endpoint.<br>
+&nbsp;<br>
+GET:&nbsp;Returns&nbsp;the&nbsp;most&nbsp;recently&nbsp;modified&nbsp;slideshow<br>
+POST:&nbsp;Loads&nbsp;specific&nbsp;slideshow&nbsp;by&nbsp;filename<br>
+&nbsp;<br>
+For&nbsp;POST&nbsp;requests:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Request&nbsp;Body:&nbsp;JSON&nbsp;with&nbsp;'filename'&nbsp;field<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<br>
+Response:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;200:&nbsp;JSON&nbsp;slideshow&nbsp;data<br>
+&nbsp;&nbsp;&nbsp;&nbsp;400:&nbsp;Bad&nbsp;request&nbsp;(missing&nbsp;filename&nbsp;for&nbsp;POST)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;404:&nbsp;Slideshow&nbsp;not&nbsp;found</span></dd></dl>
+
+<dl><dt><a name="CustomHTTPRequestHandler-handle_save_slideshow"><strong>handle_save_slideshow</strong></a>(self)</dt><dd><span class="code">Handle&nbsp;POST&nbsp;/api/save_slideshow&nbsp;endpoint.<br>
+&nbsp;<br>
+Saves&nbsp;slideshow&nbsp;data&nbsp;to&nbsp;file&nbsp;system.&nbsp;Expects&nbsp;JSON&nbsp;payload&nbsp;with<br>
+slideshow&nbsp;data&nbsp;and&nbsp;optional&nbsp;filename.<br>
+&nbsp;<br>
+Request&nbsp;Body:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;JSON&nbsp;object&nbsp;containing&nbsp;slideshow&nbsp;data&nbsp;and&nbsp;optional&nbsp;filename<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<br>
+Response:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;200:&nbsp;Success&nbsp;with&nbsp;filepath<br>
+&nbsp;&nbsp;&nbsp;&nbsp;400:&nbsp;Bad&nbsp;request&nbsp;(invalid&nbsp;JSON&nbsp;or&nbsp;save&nbsp;error)</span></dd></dl>
+
+<dl><dt><a name="CustomHTTPRequestHandler-handle_upload_pptx"><strong>handle_upload_pptx</strong></a>(self)</dt><dd><span class="code">Handle&nbsp;POST&nbsp;/api/upload_pptx&nbsp;endpoint.<br>
+&nbsp;<br>
+Accepts&nbsp;PowerPoint&nbsp;(.pptx)&nbsp;file&nbsp;uploads&nbsp;and&nbsp;converts&nbsp;them&nbsp;to&nbsp;slideshow&nbsp;format.<br>
+Supports&nbsp;multipart/form-data&nbsp;uploads&nbsp;with&nbsp;file&nbsp;and&nbsp;optional&nbsp;name&nbsp;fields.<br>
+&nbsp;<br>
+Request:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Content-Type:&nbsp;multipart/form-data<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Fields:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;file:&nbsp;PPTX&nbsp;file&nbsp;data<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;name:&nbsp;Optional&nbsp;slideshow&nbsp;name&nbsp;(defaults&nbsp;to&nbsp;"Uploaded&nbsp;Presentation")<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+Response:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;200:&nbsp;Conversion&nbsp;result&nbsp;with&nbsp;success&nbsp;status&nbsp;and&nbsp;details<br>
+&nbsp;&nbsp;&nbsp;&nbsp;400:&nbsp;Bad&nbsp;request&nbsp;(invalid&nbsp;file&nbsp;type&nbsp;or&nbsp;missing&nbsp;file)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;500:&nbsp;Internal&nbsp;server&nbsp;error&nbsp;during&nbsp;conversion</span></dd></dl>
+
+<dl><dt><a name="CustomHTTPRequestHandler-serve_slideshow_files"><strong>serve_slideshow_files</strong></a>(self)</dt><dd><span class="code">Serve&nbsp;static&nbsp;slideshow&nbsp;assets&nbsp;(images,&nbsp;JSON&nbsp;files).<br>
+&nbsp;<br>
+Handles&nbsp;requests&nbsp;to&nbsp;/slideshows/*&nbsp;paths,&nbsp;serving&nbsp;files&nbsp;directly&nbsp;from<br>
+the&nbsp;file&nbsp;system&nbsp;with&nbsp;appropriate&nbsp;MIME&nbsp;types&nbsp;and&nbsp;caching&nbsp;headers.<br>
+&nbsp;<br>
+Supported&nbsp;file&nbsp;types:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Images:&nbsp;.png,&nbsp;.jpg,&nbsp;.jpeg<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Data:&nbsp;.json<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Other:&nbsp;served&nbsp;as&nbsp;application/octet-stream<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<br>
+Response:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;200:&nbsp;File&nbsp;content&nbsp;with&nbsp;appropriate&nbsp;headers<br>
+&nbsp;&nbsp;&nbsp;&nbsp;404:&nbsp;File&nbsp;not&nbsp;found<br>
+&nbsp;&nbsp;&nbsp;&nbsp;500:&nbsp;Server&nbsp;error&nbsp;accessing&nbsp;file</span></dd></dl>
+
+<hr>
+Methods inherited from <a href="http.server.html#SimpleHTTPRequestHandler">http.server.SimpleHTTPRequestHandler</a>:<br>
+<dl><dt><a name="CustomHTTPRequestHandler-copyfile"><strong>copyfile</strong></a>(self, source, outputfile)</dt><dd><span class="code">Copy&nbsp;all&nbsp;data&nbsp;between&nbsp;two&nbsp;file&nbsp;objects.<br>
+&nbsp;<br>
+The&nbsp;SOURCE&nbsp;argument&nbsp;is&nbsp;a&nbsp;file&nbsp;object&nbsp;open&nbsp;for&nbsp;reading<br>
+(or&nbsp;anything&nbsp;with&nbsp;a&nbsp;read()&nbsp;method)&nbsp;and&nbsp;the&nbsp;DESTINATION<br>
+argument&nbsp;is&nbsp;a&nbsp;file&nbsp;object&nbsp;open&nbsp;for&nbsp;writing&nbsp;(or<br>
+anything&nbsp;with&nbsp;a&nbsp;write()&nbsp;method).<br>
+&nbsp;<br>
+The&nbsp;only&nbsp;reason&nbsp;for&nbsp;overriding&nbsp;this&nbsp;would&nbsp;be&nbsp;to&nbsp;change<br>
+the&nbsp;block&nbsp;size&nbsp;or&nbsp;perhaps&nbsp;to&nbsp;replace&nbsp;newlines&nbsp;by&nbsp;CRLF<br>
+--&nbsp;note&nbsp;however&nbsp;that&nbsp;this&nbsp;the&nbsp;default&nbsp;server&nbsp;uses&nbsp;this<br>
+to&nbsp;copy&nbsp;binary&nbsp;data&nbsp;as&nbsp;well.</span></dd></dl>
+
+<dl><dt><a name="CustomHTTPRequestHandler-do_HEAD"><strong>do_HEAD</strong></a>(self)</dt><dd><span class="code">Serve&nbsp;a&nbsp;HEAD&nbsp;request.</span></dd></dl>
+
+<dl><dt><a name="CustomHTTPRequestHandler-guess_type"><strong>guess_type</strong></a>(self, path)</dt><dd><span class="code">Guess&nbsp;the&nbsp;type&nbsp;of&nbsp;a&nbsp;file.<br>
+&nbsp;<br>
+Argument&nbsp;is&nbsp;a&nbsp;PATH&nbsp;(a&nbsp;filename).<br>
+&nbsp;<br>
+Return&nbsp;value&nbsp;is&nbsp;a&nbsp;string&nbsp;of&nbsp;the&nbsp;form&nbsp;type/subtype,<br>
+usable&nbsp;for&nbsp;a&nbsp;MIME&nbsp;Content-type&nbsp;header.<br>
+&nbsp;<br>
+The&nbsp;default&nbsp;implementation&nbsp;looks&nbsp;the&nbsp;file's&nbsp;extension<br>
+up&nbsp;in&nbsp;the&nbsp;table&nbsp;self.<strong>extensions_map</strong>,&nbsp;using&nbsp;application/octet-stream<br>
+as&nbsp;a&nbsp;default;&nbsp;however&nbsp;it&nbsp;would&nbsp;be&nbsp;permissible&nbsp;(if<br>
+slow)&nbsp;to&nbsp;look&nbsp;inside&nbsp;the&nbsp;data&nbsp;to&nbsp;make&nbsp;a&nbsp;better&nbsp;guess.</span></dd></dl>
+
+<dl><dt><a name="CustomHTTPRequestHandler-list_directory"><strong>list_directory</strong></a>(self, path)</dt><dd><span class="code">Helper&nbsp;to&nbsp;produce&nbsp;a&nbsp;directory&nbsp;listing&nbsp;(absent&nbsp;index.html).<br>
+&nbsp;<br>
+Return&nbsp;value&nbsp;is&nbsp;either&nbsp;a&nbsp;file&nbsp;object,&nbsp;or&nbsp;None&nbsp;(indicating&nbsp;an<br>
+error).&nbsp;&nbsp;In&nbsp;either&nbsp;case,&nbsp;the&nbsp;headers&nbsp;are&nbsp;sent,&nbsp;making&nbsp;the<br>
+interface&nbsp;the&nbsp;same&nbsp;as&nbsp;for&nbsp;<a href="#CustomHTTPRequestHandler-send_head">send_head</a>().</span></dd></dl>
+
+<dl><dt><a name="CustomHTTPRequestHandler-send_head"><strong>send_head</strong></a>(self)</dt><dd><span class="code">Common&nbsp;code&nbsp;for&nbsp;GET&nbsp;and&nbsp;HEAD&nbsp;commands.<br>
+&nbsp;<br>
+This&nbsp;sends&nbsp;the&nbsp;response&nbsp;code&nbsp;and&nbsp;MIME&nbsp;headers.<br>
+&nbsp;<br>
+Return&nbsp;value&nbsp;is&nbsp;either&nbsp;a&nbsp;file&nbsp;object&nbsp;(which&nbsp;has&nbsp;to&nbsp;be&nbsp;copied<br>
+to&nbsp;the&nbsp;outputfile&nbsp;by&nbsp;the&nbsp;caller&nbsp;unless&nbsp;the&nbsp;command&nbsp;was&nbsp;HEAD,<br>
+and&nbsp;must&nbsp;be&nbsp;closed&nbsp;by&nbsp;the&nbsp;caller&nbsp;under&nbsp;all&nbsp;circumstances),&nbsp;or<br>
+None,&nbsp;in&nbsp;which&nbsp;case&nbsp;the&nbsp;caller&nbsp;has&nbsp;nothing&nbsp;further&nbsp;to&nbsp;do.</span></dd></dl>
+
+<dl><dt><a name="CustomHTTPRequestHandler-translate_path"><strong>translate_path</strong></a>(self, path)</dt><dd><span class="code">Translate&nbsp;a&nbsp;/-separated&nbsp;PATH&nbsp;to&nbsp;the&nbsp;local&nbsp;filename&nbsp;syntax.<br>
+&nbsp;<br>
+Components&nbsp;that&nbsp;mean&nbsp;special&nbsp;things&nbsp;to&nbsp;the&nbsp;local&nbsp;file&nbsp;system<br>
+(e.g.&nbsp;drive&nbsp;or&nbsp;directory&nbsp;names)&nbsp;are&nbsp;ignored.&nbsp;&nbsp;(XXX&nbsp;They&nbsp;should<br>
+probably&nbsp;be&nbsp;diagnosed.)</span></dd></dl>
+
+<hr>
+Data and other attributes inherited from <a href="http.server.html#SimpleHTTPRequestHandler">http.server.SimpleHTTPRequestHandler</a>:<br>
+<dl><dt><strong>extensions_map</strong> = {'.Z': 'application/octet-stream', '.bz2': 'application/x-bzip2', '.gz': 'application/gzip', '.xz': 'application/x-xz'}</dl>
+
+<dl><dt><strong>index_pages</strong> = ('index.html', 'index.htm')</dl>
+
+<dl><dt><strong>server_version</strong> = 'SimpleHTTP/0.6'</dl>
+
+<hr>
+Methods inherited from <a href="http.server.html#BaseHTTPRequestHandler">http.server.BaseHTTPRequestHandler</a>:<br>
+<dl><dt><a name="CustomHTTPRequestHandler-address_string"><strong>address_string</strong></a>(self)</dt><dd><span class="code">Return&nbsp;the&nbsp;client&nbsp;address.</span></dd></dl>
+
+<dl><dt><a name="CustomHTTPRequestHandler-date_time_string"><strong>date_time_string</strong></a>(self, timestamp=None)</dt><dd><span class="code">Return&nbsp;the&nbsp;current&nbsp;date&nbsp;and&nbsp;time&nbsp;formatted&nbsp;for&nbsp;a&nbsp;message&nbsp;header.</span></dd></dl>
+
+<dl><dt><a name="CustomHTTPRequestHandler-end_headers"><strong>end_headers</strong></a>(self)</dt><dd><span class="code">Send&nbsp;the&nbsp;blank&nbsp;line&nbsp;ending&nbsp;the&nbsp;MIME&nbsp;headers.</span></dd></dl>
+
+<dl><dt><a name="CustomHTTPRequestHandler-flush_headers"><strong>flush_headers</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="CustomHTTPRequestHandler-handle"><strong>handle</strong></a>(self)</dt><dd><span class="code">Handle&nbsp;multiple&nbsp;requests&nbsp;if&nbsp;necessary.</span></dd></dl>
+
+<dl><dt><a name="CustomHTTPRequestHandler-handle_expect_100"><strong>handle_expect_100</strong></a>(self)</dt><dd><span class="code">Decide&nbsp;what&nbsp;to&nbsp;do&nbsp;with&nbsp;an&nbsp;"Expect:&nbsp;100-continue"&nbsp;header.<br>
+&nbsp;<br>
+If&nbsp;the&nbsp;client&nbsp;is&nbsp;expecting&nbsp;a&nbsp;100&nbsp;Continue&nbsp;response,&nbsp;we&nbsp;must<br>
+respond&nbsp;with&nbsp;either&nbsp;a&nbsp;100&nbsp;Continue&nbsp;or&nbsp;a&nbsp;final&nbsp;response&nbsp;before<br>
+waiting&nbsp;for&nbsp;the&nbsp;request&nbsp;body.&nbsp;The&nbsp;default&nbsp;is&nbsp;to&nbsp;always&nbsp;respond<br>
+with&nbsp;a&nbsp;100&nbsp;Continue.&nbsp;You&nbsp;can&nbsp;behave&nbsp;differently&nbsp;(for&nbsp;example,<br>
+reject&nbsp;unauthorized&nbsp;requests)&nbsp;by&nbsp;overriding&nbsp;this&nbsp;method.<br>
+&nbsp;<br>
+This&nbsp;method&nbsp;should&nbsp;either&nbsp;return&nbsp;True&nbsp;(possibly&nbsp;after&nbsp;sending<br>
+a&nbsp;100&nbsp;Continue&nbsp;response)&nbsp;or&nbsp;send&nbsp;an&nbsp;error&nbsp;response&nbsp;and&nbsp;return<br>
+False.</span></dd></dl>
+
+<dl><dt><a name="CustomHTTPRequestHandler-handle_one_request"><strong>handle_one_request</strong></a>(self)</dt><dd><span class="code">Handle&nbsp;a&nbsp;single&nbsp;HTTP&nbsp;request.<br>
+&nbsp;<br>
+You&nbsp;normally&nbsp;don't&nbsp;need&nbsp;to&nbsp;override&nbsp;this&nbsp;method;&nbsp;see&nbsp;the&nbsp;class<br>
+__doc__&nbsp;string&nbsp;for&nbsp;information&nbsp;on&nbsp;how&nbsp;to&nbsp;handle&nbsp;specific&nbsp;HTTP<br>
+commands&nbsp;such&nbsp;as&nbsp;GET&nbsp;and&nbsp;POST.</span></dd></dl>
+
+<dl><dt><a name="CustomHTTPRequestHandler-log_date_time_string"><strong>log_date_time_string</strong></a>(self)</dt><dd><span class="code">Return&nbsp;the&nbsp;current&nbsp;time&nbsp;formatted&nbsp;for&nbsp;logging.</span></dd></dl>
+
+<dl><dt><a name="CustomHTTPRequestHandler-log_error"><strong>log_error</strong></a>(self, format, *args)</dt><dd><span class="code">Log&nbsp;an&nbsp;error.<br>
+&nbsp;<br>
+This&nbsp;is&nbsp;called&nbsp;when&nbsp;a&nbsp;request&nbsp;cannot&nbsp;be&nbsp;fulfilled.&nbsp;&nbsp;By<br>
+default&nbsp;it&nbsp;passes&nbsp;the&nbsp;message&nbsp;on&nbsp;to&nbsp;<a href="#CustomHTTPRequestHandler-log_message">log_message</a>().<br>
+&nbsp;<br>
+Arguments&nbsp;are&nbsp;the&nbsp;same&nbsp;as&nbsp;for&nbsp;<a href="#CustomHTTPRequestHandler-log_message">log_message</a>().<br>
+&nbsp;<br>
+XXX&nbsp;This&nbsp;should&nbsp;go&nbsp;to&nbsp;the&nbsp;separate&nbsp;error&nbsp;log.</span></dd></dl>
+
+<dl><dt><a name="CustomHTTPRequestHandler-log_message"><strong>log_message</strong></a>(self, format, *args)</dt><dd><span class="code">Log&nbsp;an&nbsp;arbitrary&nbsp;message.<br>
+&nbsp;<br>
+This&nbsp;is&nbsp;used&nbsp;by&nbsp;all&nbsp;other&nbsp;logging&nbsp;functions.&nbsp;&nbsp;Override<br>
+it&nbsp;if&nbsp;you&nbsp;have&nbsp;specific&nbsp;logging&nbsp;wishes.<br>
+&nbsp;<br>
+The&nbsp;first&nbsp;argument,&nbsp;FORMAT,&nbsp;is&nbsp;a&nbsp;format&nbsp;string&nbsp;for&nbsp;the<br>
+message&nbsp;to&nbsp;be&nbsp;logged.&nbsp;&nbsp;If&nbsp;the&nbsp;format&nbsp;string&nbsp;contains<br>
+any&nbsp;%&nbsp;escapes&nbsp;requiring&nbsp;parameters,&nbsp;they&nbsp;should&nbsp;be<br>
+specified&nbsp;as&nbsp;subsequent&nbsp;arguments&nbsp;(it's&nbsp;just&nbsp;like<br>
+printf!).<br>
+&nbsp;<br>
+The&nbsp;client&nbsp;ip&nbsp;and&nbsp;current&nbsp;date/time&nbsp;are&nbsp;prefixed&nbsp;to<br>
+every&nbsp;message.<br>
+&nbsp;<br>
+Unicode&nbsp;control&nbsp;characters&nbsp;are&nbsp;replaced&nbsp;with&nbsp;escaped&nbsp;hex<br>
+before&nbsp;writing&nbsp;the&nbsp;output&nbsp;to&nbsp;stderr.</span></dd></dl>
+
+<dl><dt><a name="CustomHTTPRequestHandler-log_request"><strong>log_request</strong></a>(self, code='-', size='-')</dt><dd><span class="code">Log&nbsp;an&nbsp;accepted&nbsp;request.<br>
+&nbsp;<br>
+This&nbsp;is&nbsp;called&nbsp;by&nbsp;<a href="#CustomHTTPRequestHandler-send_response">send_response</a>().</span></dd></dl>
+
+<dl><dt><a name="CustomHTTPRequestHandler-parse_request"><strong>parse_request</strong></a>(self)</dt><dd><span class="code">Parse&nbsp;a&nbsp;request&nbsp;(internal).<br>
+&nbsp;<br>
+The&nbsp;request&nbsp;should&nbsp;be&nbsp;stored&nbsp;in&nbsp;self.<strong>raw_requestline</strong>;&nbsp;the&nbsp;results<br>
+are&nbsp;in&nbsp;self.<strong>command</strong>,&nbsp;self.<strong>path</strong>,&nbsp;self.<strong>request_version</strong>&nbsp;and<br>
+self.<strong>headers</strong>.<br>
+&nbsp;<br>
+Return&nbsp;True&nbsp;for&nbsp;success,&nbsp;False&nbsp;for&nbsp;failure;&nbsp;on&nbsp;failure,&nbsp;any&nbsp;relevant<br>
+error&nbsp;response&nbsp;has&nbsp;already&nbsp;been&nbsp;sent&nbsp;back.</span></dd></dl>
+
+<dl><dt><a name="CustomHTTPRequestHandler-send_error"><strong>send_error</strong></a>(self, code, message=None, explain=None)</dt><dd><span class="code">Send&nbsp;and&nbsp;log&nbsp;an&nbsp;error&nbsp;reply.<br>
+&nbsp;<br>
+Arguments&nbsp;are<br>
+*&nbsp;code:&nbsp;&nbsp;&nbsp;&nbsp;an&nbsp;HTTP&nbsp;error&nbsp;code<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3&nbsp;digits<br>
+*&nbsp;message:&nbsp;a&nbsp;simple&nbsp;optional&nbsp;1&nbsp;line&nbsp;reason&nbsp;phrase.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*(&nbsp;HTAB&nbsp;/&nbsp;SP&nbsp;/&nbsp;VCHAR&nbsp;/&nbsp;%x80-FF&nbsp;)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;defaults&nbsp;to&nbsp;short&nbsp;entry&nbsp;matching&nbsp;the&nbsp;response&nbsp;code<br>
+*&nbsp;explain:&nbsp;a&nbsp;detailed&nbsp;message&nbsp;defaults&nbsp;to&nbsp;the&nbsp;long&nbsp;entry<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;matching&nbsp;the&nbsp;response&nbsp;code.<br>
+&nbsp;<br>
+This&nbsp;sends&nbsp;an&nbsp;error&nbsp;response&nbsp;(so&nbsp;it&nbsp;must&nbsp;be&nbsp;called&nbsp;before&nbsp;any<br>
+output&nbsp;has&nbsp;been&nbsp;generated),&nbsp;logs&nbsp;the&nbsp;error,&nbsp;and&nbsp;finally&nbsp;sends<br>
+a&nbsp;piece&nbsp;of&nbsp;HTML&nbsp;explaining&nbsp;the&nbsp;error&nbsp;to&nbsp;the&nbsp;user.</span></dd></dl>
+
+<dl><dt><a name="CustomHTTPRequestHandler-send_header"><strong>send_header</strong></a>(self, keyword, value)</dt><dd><span class="code">Send&nbsp;a&nbsp;MIME&nbsp;header&nbsp;to&nbsp;the&nbsp;headers&nbsp;buffer.</span></dd></dl>
+
+<dl><dt><a name="CustomHTTPRequestHandler-send_response"><strong>send_response</strong></a>(self, code, message=None)</dt><dd><span class="code">Add&nbsp;the&nbsp;response&nbsp;header&nbsp;to&nbsp;the&nbsp;headers&nbsp;buffer&nbsp;and&nbsp;log&nbsp;the<br>
+response&nbsp;code.<br>
+&nbsp;<br>
+Also&nbsp;send&nbsp;two&nbsp;standard&nbsp;headers&nbsp;with&nbsp;the&nbsp;server&nbsp;software<br>
+version&nbsp;and&nbsp;the&nbsp;current&nbsp;date.</span></dd></dl>
+
+<dl><dt><a name="CustomHTTPRequestHandler-send_response_only"><strong>send_response_only</strong></a>(self, code, message=None)</dt><dd><span class="code">Send&nbsp;the&nbsp;response&nbsp;header&nbsp;only.</span></dd></dl>
+
+<dl><dt><a name="CustomHTTPRequestHandler-version_string"><strong>version_string</strong></a>(self)</dt><dd><span class="code">Return&nbsp;the&nbsp;server&nbsp;software&nbsp;version&nbsp;string.</span></dd></dl>
+
+<hr>
+Data and other attributes inherited from <a href="http.server.html#BaseHTTPRequestHandler">http.server.BaseHTTPRequestHandler</a>:<br>
+<dl><dt><strong>MessageClass</strong> = &lt;class 'http.client.HTTPMessage'&gt;</dl>
+
+<dl><dt><strong>default_request_version</strong> = 'HTTP/0.9'</dl>
+
+<dl><dt><strong>error_content_type</strong> = 'text/html;charset=utf-8'</dl>
+
+<dl><dt><strong>error_message_format</strong> = '&lt;!DOCTYPE HTML&gt;<span class="repr">\n</span>&lt;html lang="en"&gt;<span class="repr">\n</span>    &lt;head&gt;<span class="repr">\n</span>    ... %(code)s - %(explain)s.&lt;/p&gt;<span class="repr">\n</span>    &lt;/body&gt;<span class="repr">\n</span>&lt;/html&gt;<span class="repr">\n</span>'</dl>
+
+<dl><dt><strong>monthname</strong> = [None, 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']</dl>
+
+<dl><dt><strong>protocol_version</strong> = 'HTTP/1.0'</dl>
+
+<dl><dt><strong>responses</strong> = {&lt;HTTPStatus.CONTINUE: 100&gt;: ('Continue', 'Request received, please continue'), &lt;HTTPStatus.SWITCHING_PROTOCOLS: 101&gt;: ('Switching Protocols', 'Switching to new protocol; obey Upgrade header'), &lt;HTTPStatus.PROCESSING: 102&gt;: ('Processing', ''), &lt;HTTPStatus.EARLY_HINTS: 103&gt;: ('Early Hints', ''), &lt;HTTPStatus.OK: 200&gt;: ('OK', 'Request fulfilled, document follows'), &lt;HTTPStatus.CREATED: 201&gt;: ('Created', 'Document created, URL follows'), &lt;HTTPStatus.ACCEPTED: 202&gt;: ('Accepted', 'Request accepted, processing continues off-line'), &lt;HTTPStatus.NON_AUTHORITATIVE_INFORMATION: 203&gt;: ('Non-Authoritative Information', 'Request fulfilled from cache'), &lt;HTTPStatus.NO_CONTENT: 204&gt;: ('No Content', 'Request fulfilled, nothing follows'), &lt;HTTPStatus.RESET_CONTENT: 205&gt;: ('Reset Content', 'Clear input form for further input'), ...}</dl>
+
+<dl><dt><strong>sys_version</strong> = 'Python/3.13.5'</dl>
+
+<dl><dt><strong>weekdayname</strong> = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']</dl>
+
+<hr>
+Methods inherited from <a href="socketserver.html#StreamRequestHandler">socketserver.StreamRequestHandler</a>:<br>
+<dl><dt><a name="CustomHTTPRequestHandler-finish"><strong>finish</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="CustomHTTPRequestHandler-setup"><strong>setup</strong></a>(self)</dt></dl>
+
+<hr>
+Data and other attributes inherited from <a href="socketserver.html#StreamRequestHandler">socketserver.StreamRequestHandler</a>:<br>
+<dl><dt><strong>disable_nagle_algorithm</strong> = False</dl>
+
+<dl><dt><strong>rbufsize</strong> = -1</dl>
+
+<dl><dt><strong>timeout</strong> = None</dl>
+
+<dl><dt><strong>wbufsize</strong> = 0</dl>
+
+<hr>
+Data descriptors inherited from <a href="socketserver.html#BaseRequestHandler">socketserver.BaseRequestHandler</a>:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><span class="code">dictionary&nbsp;for&nbsp;instance&nbsp;variables</span></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><span class="code">list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object</span></dd>
+</dl>
+</td></tr></table></td></tr></table><p>
+<table class="section">
+<tr class="decor functions-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Functions</strong></td></tr>
+    
+<tr><td class="decor functions-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><dl><dt><a name="-create_http_handler"><strong>create_http_handler</strong></a>(slideshow_manager, websocket_manager)</dt><dd><span class="code">Create&nbsp;HTTP&nbsp;handler&nbsp;factory&nbsp;with&nbsp;dependency&nbsp;injection.<br>
+&nbsp;<br>
+Returns&nbsp;a&nbsp;handler&nbsp;class&nbsp;factory&nbsp;that&nbsp;creates&nbsp;<a href="#CustomHTTPRequestHandler">CustomHTTPRequestHandler</a><br>
+instances&nbsp;with&nbsp;the&nbsp;provided&nbsp;slideshow&nbsp;and&nbsp;websocket&nbsp;managers&nbsp;injected.<br>
+&nbsp;<br>
+Args:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;slideshow_manager:&nbsp;SlideShowManager&nbsp;instance&nbsp;for&nbsp;slideshow&nbsp;operations<br>
+&nbsp;&nbsp;&nbsp;&nbsp;websocket_manager:&nbsp;WebSocketManager&nbsp;instance&nbsp;for&nbsp;real-time&nbsp;communication<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<br>
+Returns:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Handler&nbsp;factory&nbsp;function&nbsp;that&nbsp;creates&nbsp;configured&nbsp;request&nbsp;handlers</span></dd></dl>
+ <dl><dt><a name="-start_http_server"><strong>start_http_server</strong></a>(port=50000, slideshow_manager=None, websocket_manager=None)</dt><dd><span class="code">Start&nbsp;the&nbsp;HTTP&nbsp;server&nbsp;on&nbsp;specified&nbsp;port.<br>
+&nbsp;<br>
+Creates&nbsp;and&nbsp;starts&nbsp;a&nbsp;TCP&nbsp;server&nbsp;with&nbsp;the&nbsp;custom&nbsp;HTTP&nbsp;handler.<br>
+Blocks&nbsp;execution&nbsp;until&nbsp;server&nbsp;is&nbsp;stopped.<br>
+&nbsp;<br>
+Args:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;port&nbsp;(int):&nbsp;Port&nbsp;number&nbsp;to&nbsp;listen&nbsp;on&nbsp;(default:&nbsp;50000)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;slideshow_manager:&nbsp;SlideShowManager&nbsp;instance&nbsp;for&nbsp;slideshow&nbsp;operations<br>
+&nbsp;&nbsp;&nbsp;&nbsp;websocket_manager:&nbsp;WebSocketManager&nbsp;instance&nbsp;for&nbsp;real-time&nbsp;communication<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<br>
+Note:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;This&nbsp;function&nbsp;blocks&nbsp;and&nbsp;runs&nbsp;the&nbsp;server&nbsp;indefinitely&nbsp;until&nbsp;interrupted.</span></dd></dl>
+</td></tr></table>
+</body></html>
+        </div>
+    </div>
+    <div class="footer">
+        <p>Generated with pydoc for Presentator System | 
+        <a href="https://github.com/ArsuMinSo/Monitor_vyroba" style="color: #667eea;">View on GitHub</a></p>
+    </div>
+    

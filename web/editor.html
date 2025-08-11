@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Advanced WYSIWYG Presentation Editor</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="editor-container" id="editorContainer">
+    <h2>Advanced WYSIWYG Presentation Editor</h2>
+    <div class="toolbar">
+      <div class="slideshow-name-section">
+        <label for="slideshowNameInput">Slideshow Name:</label>
+        <input type="text" id="slideshowNameInput" placeholder="Enter slideshow name" value="Untitled Slideshow">
+      </div>
+      <select onchange="format('fontName', this.value)">
+        <option value="">Font</option>
+        <option value="Arial">Arial</option>
+        <option value="Georgia">Georgia</option>
+        <option value="Tahoma">Tahoma</option>
+        <option value="Verdana">Verdana</option>
+        <option value="Courier New">Courier New</option>
+        <option value="Times New Roman">Times New Roman</option>
+      </select>
+      <select onchange="format('fontSize', this.value)">
+        <option value="">Size</option>
+        <option value="1">8pt</option> 
+        <option value="2">10pt</option>
+        <option value="3">12pt</option>
+        <option value="4">14pt</option>
+        <option value="5">18pt</option>
+        <option value="6">24pt</option>
+        <option value="7">36pt</option>
+      </select>
+      <input type="color" title="Text Color" value="#000000" onchange="format('foreColor', this.value)">
+      <input type="color" title="Background Color" value="#ffff00" onchange="format('hiliteColor', this.value)">
+      <input type="color" title="Slide Background" id="slideBgColorInput" value="#f7ecd0" onchange="setSlideBgColor(this.value)">
+      <button type="button" class="btn" title="Bold" onclick="format('bold')">
+        <img src="icons/bold.svg" class="icon" alt="bold">
+      </button>
+      <button type="button" class="btn" title="Italic" onclick="format('italic')">
+        <img src="icons/italic.svg" class="icon" alt="italic">
+      </button>
+      <button type="button" class="btn" title="Underline" onclick="format('underline')">
+        <img src="icons/underline.svg" class="icon" alt="underline">
+      </button>
+      <button type="button" class="btn" title="Strikethrough" onclick="format('strikeThrough')">
+        <img src="icons/strikethrough.svg" class="icon" alt="strikethrough">
+      </button>
+      <button type="button" class="btn" title="Superscript" onclick="format('superscript')">
+        <img src="icons/superscript.svg" class="icon" alt="superscript">
+      </button>
+      <button type="button" class="btn" title="Subscript" onclick="format('subscript')">
+        <img src="icons/subscript.svg" class="icon" alt="subscript">
+      </button>
+      <button type="button" class="btn" title="Heading 1" onclick="format('formatBlock','H1')">
+        <img src="icons/H1.svg" class="icon" alt="H1">
+      </button>
+      <button type="button" class="btn" title="Heading 2" onclick="format('formatBlock','H2')">
+        <img src="icons/H2.svg" class="icon" alt="H2">
+      </button>
+      <button type="button" class="btn" title="Heading 3" onclick="format('formatBlock','H3')">
+        <img src="icons/H3.svg" class="icon" alt="H3">
+      </button>
+      <button type="button" class="btn" title="Bullet List" onclick="format('insertUnorderedList')">
+        <img src="icons/bullet_list.svg" class="icon" alt="bullet_list">
+      </button>
+      <button type="button" class="btn" title="Numbered List" onclick="format('insertOrderedList')">
+        <img src="icons/numbered_list.svg" class="icon" alt="numbered_list">
+      </button>
+      <button type="button" class="btn" title="Align Left" onclick="format('justifyLeft')">
+        <img src="icons/left.svg" class="icon" alt="left">
+      </button>
+      <button type="button" class="btn" title="Align Center" onclick="format('justifyCenter')">
+        <img src="icons/center.svg" class="icon" alt="center">
+      </button>
+      <button type="button" class="btn" title="Align Right" onclick="format('justifyRight')">
+        <img src="icons/right.svg" class="icon" alt="right">
+      </button>
+      <button type="button" class="btn" title="Justify" onclick="format('justifyFull')">
+        <img src="icons/full.svg" class="icon" alt="full">
+      </button>
+      <button type="button" class="btn" title="Indent" onclick="format('indent')">
+        <img src="icons/indent.svg" class="icon" alt="indent">
+      </button>
+      <button type="button" class="btn" title="Outdent" onclick="format('outdent')">
+        <img src="icons/outdent.svg" class="icon" alt="outdent">
+      </button>
+      <button type="button" class="btn" title="Horizontal Rule" onclick="format('insertHorizontalRule')">
+        <img src="icons/horizontal_line.svg" class="icon" alt="horizontal_line">
+      </button>
+      <button type="button" class="btn" title="Insert Table" onclick="insertTable()">
+        <img src="icons/table.svg" class="icon" alt="table">
+      </button>
+      <button type="button" class="btn" title="Link" onclick="insertLink()">
+        <img src="icons/link.svg" class="icon" alt="link">
+      </button>
+      <label title="Insert Image"><input type="file" accept="image/*" onchange="insertImage(event)">
+        <img src="icons/image.svg" class="icon" alt="image">
+      </label>
+      <button type="button" class="btn" title="Undo" onclick="format('undo')">
+        <img src="icons/undo.svg" class="icon" alt="undo">
+      </button>
+      <button type="button" class="btn" title="Redo" onclick="format('redo')">
+        <img src="icons/redo.svg" class="icon" alt="redo">
+      </button>
+      <button type="button" class="btn" title="Clear Formatting" onclick="format('removeFormat')">
+        <img src="icons/clear_format.svg" class="icon" alt="clear_format">
+      </button>
+      <button type="button" class="btn" title="Code View" onclick="toggleCodeView()" id="codeBtn">
+        <img src="icons/show_code.svg" class="icon" alt="show_code">
+      </button>
+      <button type="button" class="btn btn-success" title="Save Slideshow" onclick="saveSlideshowToServer()">
+        <img src="icons/save.svg" class="icon" alt="save">
+      </button>
+      <button type="button" class="btn btn-info" title="Create New Slideshow" onclick="createNewSlideshow()">
+        <img src="icons/new.svg" class="icon" alt="new_slideshow">
+      </button>
+    </div>
+    <div class="editor-layout">
+      <div class="slide-list" id="slideList">
+        <div class="slide-list-header">
+          <span>Slides</span>
+          <button type="button" class="btn btn-primary" onclick="addSlide()" title="Add Slide">
+            <img src="icons/add_page.svg" class="icon" alt="add">
+          </button>
+        </div>
+        <div id="slideThumbs"></div>
+      </div>
+      <div class="editor-main">
+        <div class="editor-pane" style="width:100%;">
+          <div class="slide-duration-row">
+            <label>Duration (ms): <input type="number" min="1" max="3600000" id="slideDurationInput" class="slide-duration-input" value="6000" onchange="updateSlideDuration()"></label>
+          </div>
+          <div id="editor" class="wysiwyg-area" contenteditable="true" spellcheck="true" style="background: #f7ecd0 !important; background-color: #f7ecd0 !important;" autofocus></div>
+          <textarea id="codeArea" class="code-area"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Force background color immediately on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      
+      const editor = document.getElementById('editor');
+      if (editor) {
+        // Set focus to the editor
+        editor.focus();
+        
+        // Check if we're loading from controller
+        checkForControllerData();
+        
+        // Initialize the first slide properly
+        renderSlideThumbs();
+      } else {
+        console.error('ERROR: Editor element not found!');
+      }
+    });
+
+    // Check if the editor was opened from the controller with slideshow data
+    function checkForControllerData() {
+      const slideshowData = sessionStorage.getItem('editorSlideshowData');
+      const slideshowId = sessionStorage.getItem('editorSlideshowId');
+      
+      
+      if (slideshowData) {
+        try {
+          const data = JSON.parse(slideshowData);
+          
+          // Clear the session storage
+          sessionStorage.removeItem('editorSlideshowData');
+          sessionStorage.removeItem('editorSlideshowId');
+          
+          // Load the slideshow data
+          if (data.slides && data.slides.length > 0) {
+            
+            // Log the first slide specifically
+            
+            // Set the slideshow name
+            document.getElementById('slideshowNameInput').value = data.name || 'Slideshow from Controller';
+            
+            // Store the slideshow ID for saving back to the controller format
+            currentSlideshowFilename = slideshowId || (data.name + '.md');
+            
+            // Set loading flag
+            isLoadingFromServer = true;
+            
+            // Process the slides with extra care for the first slide
+            slides = data.slides.map((slide, index) => {
+              
+              let slideHtml = slide.html || slide.content || '';
+              
+              // If content is plain text (no HTML tags), wrap it in a paragraph
+              if (slideHtml && !slideHtml.includes('<') && !slideHtml.includes('>')) {
+                slideHtml = `<p>${slideHtml}</p>`;
+              }
+              
+              // If slideHtml is empty or undefined, provide default content
+              if (!slideHtml || slideHtml.trim() === '') {
+                slideHtml = '<p>Click here to edit this slide...</p>';
+              }
+              
+              
+              const processedSlide = {
+                html: slideHtml,
+                duration: slide.duration || 6000,
+                bgColor: slide.bgColor || DEFAULT_BG
+              };
+              
+              
+              // Test if the object properties are being corrupted
+              const testHtml = processedSlide.html;
+              
+              // Double-check by setting it again
+              processedSlide.html = slideHtml;
+              
+              
+              return {html: slideHtml, duration: slide.duration || 6000, bgColor: slide.bgColor || DEFAULT_BG};
+            });
+            
+            
+            // Set current slide and render
+            currentSlide = 0;
+            
+            renderSlideThumbs();
+            
+            // Directly set the first slide content with multiple safeguards
+            setTimeout(() => {
+              const editor = document.getElementById('editor');
+              
+              if (editor && slides[0]) {
+                
+                // Check editor state before setting
+                
+                // Force set the content
+                editor.innerHTML = slides[0].html;
+                
+                // Immediately check if it was set
+                
+                // Set other properties
+                document.getElementById('slideDurationInput').value = slides[0].duration || 6000;
+                document.getElementById('slideBgColorInput').value = slides[0].bgColor || DEFAULT_BG;
+                editor.style.setProperty('background', slides[0].bgColor || DEFAULT_BG, 'important');
+                
+                
+                // Re-render thumbnails to ensure selection
+                renderSlideThumbs();
+                
+                // Focus the editor
+                editor.focus();
+                
+                // Extra verification after a short delay
+                setTimeout(() => {
+                  
+                  if (editor.innerHTML.trim() === '' || editor.innerHTML === '<br>') {
+                    console.warn('PROBLEM: First slide content was lost, attempting restore...');
+                    editor.innerHTML = slides[0].html;
+                  } else {
+                  }
+                }, 200);
+              } else {
+                console.error('PROBLEM: Editor element or first slide not found');
+              }
+              
+              // Clear loading flag
+              setTimeout(() => {
+                isLoadingFromServer = false;
+              }, 500);
+            }, 150);
+            
+            // Notify user after everything is loaded
+            setTimeout(() => {
+              alert(`Slideshow "${data.name}" loaded from controller for editing!`);
+            }, 800);
+          } else {
+          }
+        } catch (error) {
+          console.error('Error loading slideshow from controller:', error);
+          console.error('Error stack:', error.stack);
+        }
+      } else {
+      }
+    }
+
+    // --- Slide Manager State ---
+// Default background color for new slides: white or light brown
+const DEFAULT_BG = '#f7ecd0'; // or try '#f7ecd0' for light brown
+let slides = [{ html: '<p>Click here to start editing your first slide...</p>', duration: 6000, bgColor: DEFAULT_BG }];
+    let currentSlide = 0;
+    let codeView = false;
+    let isFullscreen = false;
+    let isLoadingFromServer = false; // Flag to prevent clearing content during load
+    let currentSlideshowFilename = null; // Track the filename of the currently loaded slideshow
+
+    // Save slides to server via POST
+    function saveSlideshowToServer() {
+      saveCurrentSlide();
+      const slideshowName = document.getElementById('slideshowNameInput').value.trim() || 'Untitled Slideshow';
+      
+      const slideshowData = {
+        name: slideshowName,
+        slides: slides
+      };
+      
+      // If we're updating an existing slideshow, include the filename
+      if (currentSlideshowFilename) {
+        slideshowData.filename = currentSlideshowFilename;
+        console.log('Saving with existing filename:', currentSlideshowFilename);
+      } else {
+        console.log('Saving new slideshow:', slideshowName);
+      }
+      
+      fetch('/api/save_slideshow', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(slideshowData)
+      })
+      .then(r => {
+        if (r.ok) {
+          return r.json().then(data => {
+            const action = currentSlideshowFilename ? 'updated' : 'created';
+            alert(`Slideshow "${slideshowName}" ${action} successfully!`);
+            // If it's a new slideshow, get the actual filename from server response
+            if (!currentSlideshowFilename && data.filepath) {
+              // Extract just the filename from the full path
+              const pathParts = data.filepath.split(/[/\\]/);
+              currentSlideshowFilename = pathParts[pathParts.length - 1];
+            }
+          });
+        } else {
+          alert('Save failed');
+        }
+      })
+      .catch(err => alert('Save failed: ' + err.message));
+    }
+
+    // Create a new slideshow (clears current content and filename tracking)
+    function createNewSlideshow() {
+      if (confirm('Create a new slideshow? This will clear your current work.')) {
+        slides = [{ html: '<p>Click here to start editing your first slide...</p>', duration: 6000, bgColor: DEFAULT_BG }];
+        currentSlide = 0;
+        currentSlideshowFilename = null; // Clear filename tracking
+        document.getElementById('slideshowNameInput').value = 'Untitled Slideshow';
+        renderSlideThumbs();
+        selectSlide(0);
+      }
+    }
+
+    // Load slides from server and parse
+    function loadSlideshowFromServer() {
+      fetch('/api/load_slideshow')
+        .then(r => {
+          return r.text(); // Get as text first to see what we're receiving
+        })
+        .then(text => {
+          try {
+            const data = JSON.parse(text);
+            if (data && (Array.isArray(data) || (data.slides && Array.isArray(data.slides)))) {
+              // Handle both old format (direct array) and new format (object with slides)
+              let slidesData, slideshowName;
+              if (Array.isArray(data)) {
+                slidesData = data;
+                slideshowName = 'Loaded Slideshow';
+              } else {
+                slidesData = data.slides || [];
+                slideshowName = data.name || 'Loaded Slideshow';
+              }
+              
+              if (slidesData.length > 0) {
+                //                parseLoadedSlides(slidesData);
+                document.getElementById('slideshowNameInput').value = slideshowName;
+                
+                // Store the filename for future saves (use filename from data or generate from name)
+                currentSlideshowFilename = data.filename || (slideshowName + '.json');
+                if (!currentSlideshowFilename.endsWith('.json')) {
+                  currentSlideshowFilename += '.json';
+                }
+                
+                alert(`Slideshow "${slideshowName}" loaded from server!`);
+              } else {
+                alert('No slideshow found on server.');
+              }
+            } else {
+              alert('No slideshow found on server.');
+            }
+          } catch (parseError) {
+            console.error('JSON parse error:', parseError);
+            console.error('Failed to parse response:', text);
+            alert('Load failed: Server returned invalid data. Check console for details.');
+          }
+        })
+        .catch(err => {
+          console.error('Fetch error:', err);
+          alert('Load failed: ' + err.message);
+        });
+    }
+
+    // Load a specific slideshow by filename
+    function loadSpecificSlideshow(filename) {
+      // Try POST method with filename in body instead of GET with URL parameter
+      fetch('/api/load_slideshow', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ filename: filename })
+      })
+        .then(r => {
+          if (!r.ok) {
+            throw new Error(`HTTP ${r.status}: ${r.statusText}`);
+          }
+          return r.text();
+        })
+        .then(text => {
+          try {
+            const data = JSON.parse(text);
+            if (data && (Array.isArray(data) || (data.slides && Array.isArray(data.slides)))) {
+              let slidesData, slideshowName;
+              if (Array.isArray(data)) {
+                slidesData = data;
+                slideshowName = filename;
+              } else {
+                slidesData = data.slides || [];
+                slideshowName = data.name || filename;
+              }
+              
+              if (slidesData.length > 0) {
+                parseLoadedSlides(slidesData);
+                document.getElementById('slideshowNameInput').value = slideshowName;
+                
+                // Store the filename for future saves
+                currentSlideshowFilename = filename;
+                
+                alert(`Slideshow "${slideshowName}" loaded successfully!`);
+              } else {
+                alert('The selected slideshow is empty.');
+              }
+            } else {
+              alert('Failed to load the selected slideshow.');
+            }
+          } catch (parseError) {
+            console.error('JSON parse error in load specific:', parseError);
+            alert('Failed to parse slideshow data. Check console for details.');
+          }
+        })
+        .catch(err => {
+          console.error('Load specific fetch error:', err);
+          alert('Load failed: ' + err.message);
+        });
+    }
+
+    // Parse loaded slides (from server JSON)
+    function parseLoadedSlides(loadedSlides) {
+      isLoadingFromServer = true; // Set flag to prevent content clearing
+      
+      slides = loadedSlides.map((slide, index) => {
+        let html = slide.html || slide.content; // Check both html and content properties
+        
+        // If content is plain text (no HTML tags), wrap it in a paragraph
+        if (html && !html.includes('<') && !html.includes('>')) {
+          html = `<p>${html}</p>`;
+        }
+        
+        // If html is empty or undefined, provide default content
+        if (!html || html.trim() === '') {
+          html = '<p>Click here to edit this slide...</p>';
+        }
+        
+        
+        const slideObject = {
+          html: html,
+          duration: slide.duration || 6000, // Keep as milliseconds
+          bgColor: slide.bgColor || DEFAULT_BG
+        };
+        
+        
+        return slideObject;
+      });
+      
+      currentSlide = 0;
+      renderSlideThumbs();
+      
+      // Use setTimeout to ensure proper loading of the first slide
+      setTimeout(() => {
+        
+        // Set editor content BEFORE calling selectSlide to avoid interference
+        const editor = document.getElementById('editor');
+        if (editor && slides[0]) {
+          editor.innerHTML = slides[0].html;
+          
+          // Set other slide properties manually
+          currentSlide = 0;
+          document.getElementById('slideDurationInput').value = slides[0].duration || 6000;
+          document.getElementById('slideBgColorInput').value = slides[0].bgColor || DEFAULT_BG;
+          editor.style.setProperty('background', slides[0].bgColor || DEFAULT_BG, 'important');
+          
+          // Update thumbnails to show selection
+          renderSlideThumbs();
+          
+          editor.focus();
+        }
+        
+        // Clear the loading flag after a delay
+        setTimeout(() => {
+          isLoadingFromServer = false;
+        }, 500);
+      }, 100);
+    }
+
+    function renderSlideThumbs() {
+      const thumbs = document.getElementById('slideThumbs');
+      thumbs.innerHTML = '';
+      slides.forEach((slide, i) => {
+        const div = document.createElement('div');
+        div.className = 'slide-thumb' + (i === currentSlide ? ' selected' : '');
+        div.onclick = () => selectSlide(i);
+        div.innerHTML = `<span class="slide-num">${i+1}</span> Slide
+          <span class="slide-duration">${(slide.duration/1000)}s</span>
+          <button class="move-btn" title="Move Up" onclick="event.stopPropagation();moveSlide(${i},-1)">
+        <img src="icons/up.svg" class="icon" alt="up">
+      </button>
+          <button class="move-btn" title="Move Down" onclick="event.stopPropagation();moveSlide(${i},1)">
+        <img src="icons/down.svg" class="icon" alt="down">
+      </button>
+          <button class="delete-btn" title="Delete" onclick="event.stopPropagation();deleteSlide(${i})">
+        <img src="icons/delete.svg" class="icon" alt="delete">
+      </button>`;
+        thumbs.appendChild(div);
+      });
+    }
+    function setSlideBgColor(color) {
+      slides[currentSlide].bgColor = color;
+      document.getElementById('editor').style.setProperty('background', color, 'important');
+      document.getElementById('slideBgColorInput').value = color;
+      saveCurrentSlide();
+    }
+    function addSlide() {
+      slides.push({ html: '<p>Click here to edit this slide...</p>', duration: 6000, bgColor: DEFAULT_BG });
+      selectSlide(slides.length - 1);
+      renderSlideThumbs();
+    }
+    function deleteSlide(idx) {
+      if (slides.length === 1) return;
+      slides.splice(idx, 1);
+      if (currentSlide >= slides.length) currentSlide = slides.length - 1;
+      selectSlide(currentSlide);
+      renderSlideThumbs();
+    }
+    function moveSlide(idx, dir) {
+      const newIdx = idx + dir;
+      if (newIdx < 0 || newIdx >= slides.length) return;
+      [slides[idx], slides[newIdx]] = [slides[newIdx], slides[idx]];
+      if (currentSlide === idx) currentSlide = newIdx;
+      renderSlideThumbs();
+      selectSlide(currentSlide);
+    }
+    function selectSlide(idx) {
+      saveCurrentSlide();
+      currentSlide = idx;
+
+      let slideHtml = slides[idx].html;
+      
+      // If content is plain text (no HTML tags), wrap it in a paragraph
+      if (slideHtml && !slideHtml.includes('<') && !slideHtml.includes('>')) {
+        slideHtml = `<p>${slideHtml}</p>`;
+        // Update the slide data with proper HTML
+        slides[idx].html = slideHtml;
+      }
+      
+      document.getElementById('editor').innerHTML = slideHtml;
+      document.getElementById('slideDurationInput').value = slides[idx].duration || 6000;
+      if (codeView) {
+        document.getElementById('codeArea').value = slides[idx].html;
+      }
+      renderSlideThumbs();
+      // Set background color picker and editor bg
+      let bg = slides[idx].bgColor;
+      if (!bg || typeof bg !== 'string' || !/^#[0-9a-fA-F]{3,6}$/.test(bg)) {
+        bg = DEFAULT_BG;
+        slides[idx].bgColor = bg;
+      }
+      document.getElementById('editor').style.setProperty('background', bg, 'important');
+      document.getElementById('slideBgColorInput').value = bg;
+      
+      // Focus the editor after slide selection
+      setTimeout(() => {
+        const editor = document.getElementById('editor');
+        if (editor && !codeView) {
+          editor.focus();
+        }
+      }, 50);
+    }
+    function saveCurrentSlide() {
+      
+      // Only save if slides array and current slide exist
+      if (!slides[currentSlide]) {
+        return;
+      }
+      
+      
+      if (codeView) {
+        slides[currentSlide].html = document.getElementById('codeArea').value;
+      } else {
+        const editor = document.getElementById('editor');
+        const editorContent = editor.innerHTML;
+        slides[currentSlide].html = editorContent;
+      }
+      // Always save bgColor from picker
+      const bgColorInput = document.getElementById('slideBgColorInput');
+      if (bgColorInput) {
+        slides[currentSlide].bgColor = bgColorInput.value;
+      }
+      
+    }
+    function updateSlideDuration() {
+      const val = parseInt(document.getElementById('slideDurationInput').value, 10);
+      slides[currentSlide].duration = isNaN(val) ? 6000 : val;
+      renderSlideThumbs();
+    }
+    // --- WYSIWYG Editor Functions (unchanged) ---
+    function format(cmd, value = null) {
+      document.execCommand(cmd, false, value);
+      saveCurrentSlide();
+      // Return focus to the editor after formatting
+      setTimeout(() => {
+        const editor = document.getElementById('editor');
+        if (editor && !codeView) {
+          editor.focus();
+        }
+      }, 10);
+    }
+    function insertLink() {
+      const url = prompt('Enter URL:');
+      if (url) {
+        format('createLink', url);
+        // Focus will be handled by format function
+      }
+    }
+    function insertImage(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        format('insertImage', e.target.result);
+        // Focus will be handled by format function
+      };
+      reader.readAsDataURL(file);
+      event.target.value = '';
+    }
+    function insertTable() {
+      const rows = parseInt(prompt('Rows?', '2'), 10);
+      const cols = parseInt(prompt('Columns?', '2'), 10);
+      if (!rows || !cols) return;
+      let html = '<table border="1" style="border-collapse:collapse;width:100%">';
+      for (let r = 0; r < rows; r++) {
+        html += '<tr>';
+        for (let c = 0; c < cols; c++) {
+          html += '<td style="padding:4px">&nbsp;</td>';
+        }
+        html += '</tr>';
+      }
+      html += '</table>';
+      insertHtml(html);
+      saveCurrentSlide();
+      // Return focus to the editor after table insertion
+      setTimeout(() => {
+        const editor = document.getElementById('editor');
+        if (editor && !codeView) {
+          editor.focus();
+        }
+      }, 10);
+    }
+    function insertHtml(html) {
+      const sel = window.getSelection();
+      if (!sel.rangeCount) return;
+      const range = sel.getRangeAt(0);
+      range.deleteContents();
+      const el = document.createElement('div');
+      el.innerHTML = html;
+      let frag = document.createDocumentFragment(), node, lastNode;
+      while ((node = el.firstChild)) {
+        lastNode = frag.appendChild(node);
+      }
+      range.insertNode(frag);
+    }
+
+    function toggleCodeView() {
+      saveCurrentSlide();
+      codeView = !codeView;
+      const editor = document.getElementById('editor');
+      const codeArea = document.getElementById('codeArea');
+      const codeBtn = document.getElementById('codeBtn');
+      if (codeView) {
+        codeArea.value = slides[currentSlide].html;
+        codeArea.style.display = 'block';
+        editor.style.display = 'none';
+        codeBtn.classList.add('active');
+        // Focus the code area
+        setTimeout(() => codeArea.focus(), 50);
+      } else {
+        slides[currentSlide].html = codeArea.value;
+        editor.innerHTML = codeArea.value;
+        codeArea.style.display = 'none';
+        editor.style.display = 'block';
+        codeBtn.classList.remove('active');
+        // Focus the WYSIWYG editor
+        setTimeout(() => editor.focus(), 50);
+      }
+    }
+    function toggleFullscreen() {
+      isFullscreen = !isFullscreen;
+      const container = document.getElementById('editorContainer');
+      const btn = document.getElementById('fullscreenBtn');
+      if (isFullscreen) {
+        container.classList.add('fullscreen');
+        btn.classList.add('active');
+      } else {
+        container.classList.remove('fullscreen');
+        btn.classList.remove('active');
+      }
+    }
+    document.getElementById('editor').addEventListener('input', function() {
+      // Clear placeholder text if it's the default
+      const editor = document.getElementById('editor');
+      if (editor.innerHTML === '<p>Click here to start editing your first slide...</p>' || 
+          editor.innerHTML === '<p>Click here to edit this slide...</p>') {
+        editor.innerHTML = '';
+      }
+      
+      // Ensure content is wrapped in proper HTML tags
+      const content = editor.innerHTML.trim();
+      if (content && !content.includes('<') && !content.includes('>')) {
+        // If it's plain text, wrap it in a paragraph
+        editor.innerHTML = `<p>${content}</p>`;
+        // Place cursor at the end
+        const range = document.createRange();
+        const sel = window.getSelection();
+        range.selectNodeContents(editor);
+        range.collapse(false);
+        sel.removeAllRanges();
+        sel.addRange(range);
+      }
+      
+      saveCurrentSlide(); 
+    });
+    
+    document.getElementById('editor').addEventListener('focus', function() {
+      // Don't clear content if we're currently loading from server
+      if (isLoadingFromServer) {
+        return;
+      }
+      
+      // Clear placeholder text when user focuses the editor
+      const editor = document.getElementById('editor');
+      if (editor.innerHTML === '<p>Click here to start editing your first slide...</p>' || 
+          editor.innerHTML === '<p>Click here to edit this slide...</p>') {
+        editor.innerHTML = '';
+        // Place cursor at the beginning
+        const range = document.createRange();
+        const sel = window.getSelection();
+        range.setStart(editor, 0);
+        range.collapse(true);
+        sel.removeAllRanges();
+        sel.addRange(range);
+      }
+    });
+    document.getElementById('codeArea').addEventListener('input', function() {saveCurrentSlide(); });
+    document.getElementById('slideDurationInput').addEventListener('input', updateSlideDuration);
+    
+    // Initialize other color pickers with default values
+    const textColorInput = document.querySelector('input[title="Text Color"]');
+    const bgColorInput = document.querySelector('input[title="Background Color"]');
+    if (textColorInput && !textColorInput.value) textColorInput.value = '#000000';
+    if (bgColorInput && !bgColorInput.value) bgColorInput.value = '#ffff00';
+
+  </script>
+</body>
+</html>

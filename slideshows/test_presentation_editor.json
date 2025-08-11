@@ -1,0 +1,21 @@
+{
+  "name": "Test Presentation",
+  "slides": [
+    {
+      "html": "<h1>Welcome to Test Presentation</h1><p>This is the first slide of our test&nbsp;presentation.</p>",
+      "duration": 5000,
+      "bgColor": "#f0f8ff"
+    },
+    {
+      "html": "<h2>Second Slide</h2><p>Here's some content for the second slide.</p><ul><li>Point 1</li><li>Point 2</li><li>Point 3</li></ul>",
+      "duration": 7000,
+      "bgColor": "#fff5ee"
+    },
+    {
+      "html": "<h2>Final Slide</h2><p><strong>Thank you!</strong></p><p>This concludes our test presentation.</p>",
+      "duration": 4000,
+      "bgColor": "#f5fffa"
+    }
+  ],
+  "filename": "test_presentation_editor"
+}

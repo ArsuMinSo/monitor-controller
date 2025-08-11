@@ -1,0 +1,26 @@
+{
+  "name": "Basic Introduction Slideshow",
+  "timestamp": "2025-07-31T12:00:00Z",
+  "slides": [
+    {
+      "html": "<h1 align=\"center\">Welcome</h1><p align=\"center\">A simple introduction to our product</p>",
+      "duration": 4000,
+      "bgColor": "#e8f4fd"
+    },
+    {
+      "html": "<h2>About Us</h2><p>We are a <strong>technology company</strong> focused on innovation.</p><ul><li>Founded in 2020</li><li>Over 100 employees</li><li>Global presence</li></ul>",
+      "duration": 6000,
+      "bgColor": "#f0f8ff"
+    },
+    {
+      "html": "<h2>Our Products</h2><div><p>We offer various solutions:</p><ol><li><em>Software Development</em></li><li><u>Cloud Services</u></li><li>Consulting</li></ol></div>",
+      "duration": 5000,
+      "bgColor": "#fff5ee"
+    },
+    {
+      "html": "<h1 align=\"center\">Thank You!</h1><p align=\"center\">Questions?</p>",
+      "duration": 3000,
+      "bgColor": "#f5fffa"
+    }
+  ]
+}
