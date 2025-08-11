@@ -33,9 +33,10 @@
         <option value="6">24pt</option>
         <option value="7">36pt</option>
       </select>
-      <input type="color" title="Text Color" value="#000000" onchange="format('foreColor', this.value)">
-      <input type="color" title="Background Color" value="#ffff00" onchange="format('hiliteColor', this.value)">
-      <input type="color" title="Slide Background" id="slideBgColorInput" value="#f7ecd0" onchange="setSlideBgColor(this.value)">
+      <input type="color" title="Text Color" value="#000000" onchange="format('foreColor', this.value)" title="Text Color">
+      <input type="color" title="Background Color" value="#ffff00" onchange="format('hiliteColor', this.value)" title="Background Color">
+      <input type="color" title="Slide Background" id="slideBgColorInput" value="#f7ecd0" onchange="setSlideBgColor(this.value)" title="Slide Background">
+      
       <button type="button" class="btn" title="Bold" onclick="format('bold')">
         <img src="icons/bold.svg" class="icon" alt="bold">
       </button>
