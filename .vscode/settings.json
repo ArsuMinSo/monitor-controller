@@ -1,0 +1,12 @@
+{
+  "emeraldwalk.runonsave": {
+    "commands": [
+      {
+        "match": ".*\\.(txt|md|py|html|json|css)$",
+        "cmd": "py ..\\format_file.py \"${file}\"",
+        "isAsync": true
+      }
+    ]
+  },
+  "files.autoSave": "onFocusChange"
+}

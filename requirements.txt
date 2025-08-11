@@ -1,0 +1,21 @@
+# Presentator Slideshow System Dependencies
+# Install with: py -m pip install -r requirements.txt
+
+# Core dependencies for slideshow system
+websockets>=10.0
+python-pptx>=0.6.21
+Pillow>=8.0.0
+
+# Standard library modules used (no installation needed):
+# - asyncio: Asynchronous programming
+# - os, sys, pathlib: File system operations  
+# - threading: Multi-threading support
+# - http.server, socketserver: HTTP server functionality
+# - json: JSON parsing and generation
+# - re: Regular expressions
+# - socket: Network communication
+# - subprocess: Process management
+# - tempfile: Temporary file handling
+# - shutil: File operations
+# - typing: Type hints
+# - cgi: Form data parsing (deprecated in Python 3.11+, removed in 3.13+)
