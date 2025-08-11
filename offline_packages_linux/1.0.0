@@ -1,0 +1,28 @@
+Collecting python-pptx
+  Using cached python_pptx-1.0.2.tar.gz (10.1 MB)
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'done'
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Collecting Pillow>=3.3.2 (from python-pptx)
+  Using cached pillow-11.3.0.tar.gz (47.1 MB)
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'done'
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Collecting XlsxWriter>=0.5.7 (from python-pptx)
+  Using cached xlsxwriter-3.2.5.tar.gz (213 kB)
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'done'
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Collecting lxml>=3.1.0 (from python-pptx)
+  Using cached lxml-6.0.0.tar.gz (4.1 MB)
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'error'
