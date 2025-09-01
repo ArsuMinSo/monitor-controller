@@ -7,12 +7,41 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
+    <!-- Login Overlay -->
+    <div id="loginOverlay" class="login-overlay">
+        <div class="login-container">
+            <div class="login-header">
+                <img src="img/logo_omnika_transparent.png" alt="Omnika Logo" class="login-logo">
+                <h2>Slideshow Controller</h2>
+                <p>Please login to access the controller</p>
+            </div>
+            <form id="loginForm" class="login-form">
+                <div class="form-group">
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" name="username" required autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" required autocomplete="current-password">
+                </div>
+                <button type="submit" class="btn btn-primary login-btn">Login</button>
+                <div id="loginError" class="login-error"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Controller Interface -->
+    <div class="container" id="mainContainer" style="display: none;">
         <div class="header">
             <h1> Slideshow Controller</h1>
             <p>Manage your markdown-based presentations</p>
             <div class="connection-status disconnected" id="connectionStatus">
                 Connecting...
+            </div>
+            <div class="logout-section">
+                <button onclick="logout()" class="btn btn-secondary btn-small" title="Logout">
+                    <img src="icons/logout.svg" class="icon" alt="Logout">Logout
+                </button>
             </div>
         </div>
  
@@ -101,6 +130,69 @@
     </div>
 
     <script>
+        // Login functionality
+        const AUTH_CONFIG = {
+            users: {
+                'admin': 'admin123',
+            }
+        };
+
+        function initializeLogin() {
+            const loginForm = document.getElementById('loginForm');
+            const loginError = document.getElementById('loginError');
+            
+            // Check if user is already logged in
+            if (sessionStorage.getItem('isLoggedIn') === 'true') {
+                showMainInterface();
+                return;
+            }
+            
+            loginForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+                
+                if (validateLogin(username, password)) {
+                    sessionStorage.setItem('isLoggedIn', 'true');
+                    sessionStorage.setItem('username', username);
+                    showMainInterface();
+                    loginError.textContent = '';
+                } else {
+                    loginError.textContent = 'Invalid username or password';
+                    document.getElementById('password').value = '';
+                }
+            });
+        }
+
+        function validateLogin(username, password) {
+            return AUTH_CONFIG.users[username] === password;
+        }
+
+        function showMainInterface() {
+            document.getElementById('loginOverlay').style.display = 'none';
+            document.getElementById('mainContainer').style.display = 'block';
+            
+            // Initialize the controller only after successful login
+            if (!window.controller) {
+                controller = new SlideshowController();
+                initializeUpload();
+            }
+        }
+
+        function logout() {
+            sessionStorage.removeItem('isLoggedIn');
+            sessionStorage.removeItem('username');
+            document.getElementById('loginOverlay').style.display = 'flex';
+            document.getElementById('mainContainer').style.display = 'none';
+            document.getElementById('loginForm').reset();
+            
+            // Close WebSocket connection
+            if (window.controller && window.controller.ws) {
+                window.controller.ws.close();
+            }
+        }
+
         class SlideshowController {
             constructor() {
                 this.ws = null;
@@ -542,11 +634,8 @@
             }
         }
 
-        // Start the controller
-        controller = new SlideshowController();
-        
-        // Initialize upload functionality
-        initializeUpload();
+        // Initialize login system
+        initializeLogin();
     </script>
 </body>
 </html>

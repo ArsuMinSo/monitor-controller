@@ -11,6 +11,7 @@ Monitor Controller is a slideshow management system that enables you to create, 
 - Manage multiple presentations from a single interface [_tutorial_](./docs/tuto/con2.md)
 - Import PowerPoint presentations (.pptx files) [_tutorial_](./docs/tuto/import_pptx.md)
 - Create slideshows using a built-in WYSIWYG editor. [_tutorial_](./docs/tuto/wysiwyg.md)
+- Or take html from professional WYSIWYG editor [_editor_](https://wysiwyghtml.com/)
 
 **Multi-Device Synchronization**
 - Display the same slideshow simultaneously on multiple screens
