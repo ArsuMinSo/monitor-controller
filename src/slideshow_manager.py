@@ -8,6 +8,7 @@ and PowerPoint import functionality.
 
 import json
 import os
+import logging
 from pathlib import Path
 from .pptx_parse import convert_pptx_file_free
 from .utils import log
@@ -32,6 +33,8 @@ class SlideShowManager:
         Sets up empty slideshow cache that will be populated on first discovery.
         """
         self.slideshows = []
+        self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
+        self.logger.debug("SlideShowManager initialized")
     
     def discover_slideshows(self):
         """

@@ -1,25 +1,13 @@
 Collecting websockets
-  Using cached websockets-15.0.1-cp313-cp313-win_amd64.whl.metadata (7.0 kB)
+  File was already downloaded c:\users\simon.raus\documents\monitor-controller\offline_packages_linux\websockets-15.0.1-cp313-cp313-win_amd64.whl
 Collecting python-pptx
-  Using cached python_pptx-1.0.2-py3-none-any.whl.metadata (2.5 kB)
+  File was already downloaded c:\users\simon.raus\documents\monitor-controller\offline_packages_linux\python_pptx-1.0.2-py3-none-any.whl
 Collecting Pillow
-  Using cached pillow-11.3.0-cp313-cp313-win_amd64.whl.metadata (9.2 kB)
+  File was already downloaded c:\users\simon.raus\documents\monitor-controller\offline_packages_linux\pillow-11.3.0-cp313-cp313-win_amd64.whl
 Collecting XlsxWriter>=0.5.7 (from python-pptx)
-  Using cached xlsxwriter-3.2.5-py3-none-any.whl.metadata (2.7 kB)
+  File was already downloaded c:\users\simon.raus\documents\monitor-controller\offline_packages_linux\xlsxwriter-3.2.5-py3-none-any.whl
 Collecting lxml>=3.1.0 (from python-pptx)
-  Using cached lxml-6.0.0-cp313-cp313-win_amd64.whl.metadata (6.8 kB)
+  File was already downloaded c:\users\simon.raus\documents\monitor-controller\offline_packages_linux\lxml-6.0.1-cp313-cp313-win_amd64.whl
 Collecting typing-extensions>=4.9.0 (from python-pptx)
-  Using cached typing_extensions-4.14.1-py3-none-any.whl.metadata (3.0 kB)
-Using cached websockets-15.0.1-cp313-cp313-win_amd64.whl (176 kB)
-Using cached python_pptx-1.0.2-py3-none-any.whl (472 kB)
-Using cached pillow-11.3.0-cp313-cp313-win_amd64.whl (7.0 MB)
-Using cached lxml-6.0.0-cp313-cp313-win_amd64.whl (4.0 MB)
-Using cached typing_extensions-4.14.1-py3-none-any.whl (43 kB)
-Using cached xlsxwriter-3.2.5-py3-none-any.whl (172 kB)
-Saved c:\users\simon.raus\documents\monitor-controller\offline_packages_linux\websockets-15.0.1-cp313-cp313-win_amd64.whl
-Saved c:\users\simon.raus\documents\monitor-controller\offline_packages_linux\python_pptx-1.0.2-py3-none-any.whl
-Saved c:\users\simon.raus\documents\monitor-controller\offline_packages_linux\pillow-11.3.0-cp313-cp313-win_amd64.whl
-Saved c:\users\simon.raus\documents\monitor-controller\offline_packages_linux\lxml-6.0.0-cp313-cp313-win_amd64.whl
-Saved c:\users\simon.raus\documents\monitor-controller\offline_packages_linux\typing_extensions-4.14.1-py3-none-any.whl
-Saved c:\users\simon.raus\documents\monitor-controller\offline_packages_linux\xlsxwriter-3.2.5-py3-none-any.whl
+  File was already downloaded c:\users\simon.raus\documents\monitor-controller\offline_packages_linux\typing_extensions-4.15.0-py3-none-any.whl
 Successfully downloaded websockets python-pptx Pillow lxml typing-extensions XlsxWriter

@@ -9,6 +9,7 @@ Handles web interface serving and API communication between frontend and backend
 import http.server
 import socketserver
 import json
+import logging
 from pathlib import Path
 
 
@@ -39,6 +40,7 @@ class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         """
         self.slideshow_manager = slideshow_manager
         self.websocket_manager = websocket_manager
+        self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
         super().__init__(*args, **kwargs)
 
     def do_GET(self):
@@ -50,6 +52,8 @@ class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         - /slideshows/* -> Slideshow asset files
         - /* -> Web interface files from /web directory
         """
+        self.logger.debug(f"GET request: {self.path} from {self.client_address[0]}")
+        
         if self.path.startswith('/api/'):
             self.handle_api_request()
         elif self.path.startswith('/slideshows/'):
@@ -59,8 +63,10 @@ class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             # Serve files from web directory
             if self.path == '/':
                 self.path = '/web/controller.html'
+                self.logger.debug("Redirecting root to controller.html")
             elif not self.path.startswith('/web/'):
                 self.path = '/web' + self.path
+                self.logger.debug(f"Adding /web prefix to path: {self.path}")
             super().do_GET()
     
     def do_POST(self):
@@ -70,9 +76,12 @@ class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         Routes POST requests to API endpoints for data modification operations
         like saving slideshows, uploading files, etc.
         """
+        self.logger.debug(f"POST request: {self.path} from {self.client_address[0]}")
+        
         if self.path.startswith('/api/'):
             self.handle_api_request()
         else:
+            self.logger.warning(f"Invalid POST request path: {self.path}")
             self.send_error(404, "Not Found")
     
     def handle_api_request(self):

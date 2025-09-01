@@ -10,6 +10,7 @@ slideshow control across multiple devices.
 import asyncio
 import websockets
 import json
+import logging
 
 
 class WebSocketManager:
@@ -42,6 +43,8 @@ class WebSocketManager:
             "slideshows": [],
             "playing": False
         }
+        self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
+        self.logger.debug("WebSocketManager initialized")
 
     
     async def broadcast_state(self):

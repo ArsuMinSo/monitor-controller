@@ -191,6 +191,25 @@ body {
   to { opacity: 1; transform: none; }
 }
 
+/* Logo styles */
+.logo-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+}
+
+.logo {
+  height: 60px;
+  width: auto;
+  opacity: 0.8;
+  transition: opacity 0.3s ease;
+}
+
+.logo:hover {
+  opacity: 1;
+}
+
 .slide h1, .slide h2, .slide h3 {
   color: var(--primary-dark);
   margin-top: 0;

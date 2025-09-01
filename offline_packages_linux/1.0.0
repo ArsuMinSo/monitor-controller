@@ -7,7 +7,7 @@ Collecting python-pptx
   Preparing metadata (pyproject.toml): started
   Preparing metadata (pyproject.toml): finished with status 'done'
 Collecting Pillow>=3.3.2 (from python-pptx)
-  Using cached pillow-11.3.0.tar.gz (47.1 MB)
+  File was already downloaded c:\users\simon.raus\documents\monitor-controller\offline_packages_linux\pillow-11.3.0.tar.gz
   Installing build dependencies: started
   Installing build dependencies: finished with status 'done'
   Getting requirements to build wheel: started
@@ -23,6 +23,6 @@ Collecting XlsxWriter>=0.5.7 (from python-pptx)
   Preparing metadata (pyproject.toml): started
   Preparing metadata (pyproject.toml): finished with status 'done'
 Collecting lxml>=3.1.0 (from python-pptx)
-  Using cached lxml-6.0.0.tar.gz (4.1 MB)
+  Using cached lxml-6.0.1.tar.gz (4.1 MB)
   Installing build dependencies: started
   Installing build dependencies: finished with status 'error'
