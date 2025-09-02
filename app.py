@@ -228,10 +228,10 @@ async def main():
         logger.debug(f"Local IP: {local_ip}")
         
         # Start HTTP server with proper dependencies
-        logger.info("Starting HTTP server on port 50000...")
+        logger.info("Starting HTTP server on port 8080...")
         http_thread = threading.Thread(
             target=start_http_server, 
-            args=(50000, slideshow_manager, websocket_manager),
+            args=(8080, slideshow_manager, websocket_manager),
             daemon=True,
             name="HTTPServer"
         )
@@ -239,20 +239,20 @@ async def main():
         logger.debug("HTTP server thread started")
         
         # Start WebSocket server
-        logger.info("Starting WebSocket server on port 50001...")
-        print("WebSocket server starting on ws://0.0.0.0:50001")
-        websocket_server = await websocket_manager.start_websocket_server(50001)
+        logger.info("Starting WebSocket server on port 50002...")
+        print("WebSocket server starting on ws://0.0.0.0:50002")
+        websocket_server = await websocket_manager.start_websocket_server(50002)
         logger.info("WebSocket server started successfully")
         
         # Display success information
         success_messages = [
             "System ready!",
-            "HTTP server running at http://0.0.0.0:50000",
+            "HTTP server running at http://0.0.0.0:8080",
             "Access URLs:",
-            f"   Controller: http://{local_ip}:50000/web/controller.html",
-            f"   Viewer:     http://{local_ip}:50000/web/viewer.html",
-            f"   Editor:     http://{local_ip}:50000/web/editor.html",
-            f"Network access: http://{local_ip}:50000"
+            f"   Controller: http://{local_ip}:8080/web/controller.html",
+            f"   Viewer:     http://{local_ip}:8080/web/viewer.html",
+            f"   Editor:     http://{local_ip}:8080/web/editor.html",
+            f"Network access: http://{local_ip}:8080"
         ]
         
         for msg in success_messages:
