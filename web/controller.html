@@ -215,7 +215,7 @@
             connectWebSocket() {
                 try {
                     // Use current host instead of hardcoded localhost for network access
-                    const wsUrl = `ws://${window.location.hostname}:50001`;
+                    const wsUrl = `ws://${window.location.hostname}:50002`;
                     this.ws = new WebSocket(wsUrl);
                     
                     this.ws.onopen = () => {
