@@ -251,7 +251,7 @@ def add_styling_and_nav(html_content, current_module, display_name, all_modules)
     </div>
     <div class="footer">
         <p>Generated with pydoc for Presentator System | 
-        <a href="https://github.com/ArsuMinSo/Monitor_vyroba" style="color: #667eea;">View on GitHub</a></p>
+        <a href="https://github.com/ArsuMinSo/monitor-controller" style="color: #667eea;">View on GitHub</a></p>
     </div>
     """
     
@@ -530,7 +530,7 @@ def generate_index_page(output_dir, modules):
         
         <div class="footer">
             <p>Generated with pydoc for Presentator System | 
-            <a href="https://github.com/ArsuMinSo/Monitor_vyroba" style="color: rgba(255,255,255,0.8);">View on GitHub</a></p>
+            <a href="https://github.com/ArsuMinSo/monitor-controller" style="color: rgba(255,255,255,0.8);">View on GitHub</a></p>
         </div>
     </div>
 </body>
