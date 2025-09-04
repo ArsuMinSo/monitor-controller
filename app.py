@@ -228,10 +228,10 @@ async def main():
         logger.debug(f"Local IP: {local_ip}")
         
         # Start HTTP server with proper dependencies
-        logger.info("Starting HTTP server on port 8080...")
+        logger.info("Starting HTTP server on port 50000...")
         http_thread = threading.Thread(
             target=start_http_server, 
-            args=(8080, slideshow_manager, websocket_manager),
+            args=(50000, slideshow_manager, websocket_manager),
             daemon=True,
             name="HTTPServer"
         )
@@ -247,12 +247,12 @@ async def main():
         # Display success information
         success_messages = [
             "System ready!",
-            "HTTP server running at http://0.0.0.0:8080",
+            "HTTP server running at http://0.0.0.0:50000",
             "Access URLs:",
-            f"   Controller: http://{local_ip}:8080/web/controller.html",
-            f"   Viewer:     http://{local_ip}:8080/web/viewer.html",
-            f"   Editor:     http://{local_ip}:8080/web/editor.html",
-            f"Network access: http://{local_ip}:8080"
+            f"   Controller: http://{local_ip}:50000/web/controller.html",
+            f"   Viewer:     http://{local_ip}:50000/web/viewer.html",
+            f"   Editor:     http://{local_ip}:50000/web/editor.html",
+            f"Network access: http://{local_ip}:50000"
         ]
         
         for msg in success_messages:

@@ -193,7 +193,15 @@
     <p><span class="code">Presentator&nbsp;-&nbsp;Real-Time&nbsp;Slideshow&nbsp;System<br>
 &nbsp;<br>
 Main&nbsp;application&nbsp;entry&nbsp;point&nbsp;for&nbsp;the&nbsp;Presentator&nbsp;system.&nbsp;This&nbsp;script&nbsp;initializes<br>
-and&nbsp;coordinates&nbsp;all&nbsp;system&nbsp;components&nbsp;including&nbsp;the&nbsp;HTTP&nbsp;server,&nbsp;WebSocket&nbsp;server,<br>
+and&nbsp;coordinates&nbsp;all&nbsp;system&nbsp;components&nbsp;including&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Initialize&nbsp;logging&nbsp;first&nbsp;(before&nbsp;creating&nbsp;any&nbsp;loggers)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;logger&nbsp;=&nbsp;<a href="#-setup_logging">setup_logging</a>()<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;try:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;logger.info("Slideshow&nbsp;System&nbsp;Starting...")<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print("Slideshow&nbsp;System&nbsp;Starting...")<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Quick&nbsp;dependency&nbsp;check<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#-check_dependencies">check_dependencies</a>()erver,&nbsp;WebSocket&nbsp;server,<br>
 and&nbsp;slideshow&nbsp;management&nbsp;services.<br>
 &nbsp;<br>
 The&nbsp;Presentator&nbsp;system&nbsp;provides:<br>
@@ -217,10 +225,11 @@ The&nbsp;system&nbsp;runs&nbsp;two&nbsp;servers:<br>
     
 <tr><td class="decor pkg-content-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
 <td class="singlecolumn"><table><tr><td class="multicolumn"><a href="asyncio.html">asyncio</a><br>
+<a href="logging.html">logging</a><br>
 </td><td class="multicolumn"><a href="os.html">os</a><br>
-</td><td class="multicolumn"><a href="sys.html">sys</a><br>
+<a href="sys.html">sys</a><br>
 </td><td class="multicolumn"><a href="threading.html">threading</a><br>
-</td></tr></table></td></tr></table><p>
+</td><td class="multicolumn"></td></tr></table></td></tr></table><p>
 <table class="section">
 <tr class="decor functions-decor heading-text">
 <td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Functions</strong></td></tr>
@@ -254,12 +263,27 @@ the&nbsp;application&nbsp;is&nbsp;terminated.<br>
 Note:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;This&nbsp;function&nbsp;should&nbsp;be&nbsp;run&nbsp;with&nbsp;asyncio.run()&nbsp;to&nbsp;handle<br>
 &nbsp;&nbsp;&nbsp;&nbsp;the&nbsp;asynchronous&nbsp;WebSocket&nbsp;server&nbsp;properly.</span></dd></dl>
-</td></tr></table>
+ <dl><dt><a name="-setup_logging"><strong>setup_logging</strong></a>()</dt><dd><span class="code">Configure&nbsp;comprehensive&nbsp;logging&nbsp;for&nbsp;the&nbsp;Presentator&nbsp;system.<br>
+&nbsp;<br>
+Sets&nbsp;up&nbsp;multiple&nbsp;logging&nbsp;handlers&nbsp;with&nbsp;different&nbsp;levels:<br>
+-&nbsp;Console:&nbsp;INFO&nbsp;level&nbsp;for&nbsp;user&nbsp;feedback<br>
+-&nbsp;File:&nbsp;DEBUG&nbsp;level&nbsp;for&nbsp;detailed&nbsp;troubleshooting<br>
+-&nbsp;Error&nbsp;File:&nbsp;ERROR&nbsp;level&nbsp;for&nbsp;critical&nbsp;issues&nbsp;only<br>
+&nbsp;<br>
+Creates&nbsp;logs&nbsp;directory&nbsp;and&nbsp;implements&nbsp;log&nbsp;rotation&nbsp;to&nbsp;prevent<br>
+disk&nbsp;space&nbsp;issues&nbsp;from&nbsp;accumulating&nbsp;log&nbsp;files.</span></dd></dl>
+</td></tr></table><p>
+<table class="section">
+<tr class="decor data-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Data</strong></td></tr>
+    
+<tr><td class="decor data-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><strong>logger</strong> = &lt;Logger app (WARNING)&gt;</td></tr></table>
 </body></html>
         </div>
     </div>
     <div class="footer">
         <p>Generated with pydoc for Presentator System | 
-        <a href="https://github.com/ArsuMinSo/Monitor_vyroba" style="color: #667eea;">View on GitHub</a></p>
+        <a href="https://github.com/ArsuMinSo/monitor-controller" style="color: #667eea;">View on GitHub</a></p>
     </div>
     
