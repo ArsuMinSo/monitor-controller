@@ -46,7 +46,7 @@ def setup_logging():
     
     # Create root logger
     logger = logging.getLogger()
-    logger.setLevel(logging.DEBUG)
+    logger.setLevel(logging.INFO)
     
     # Clear any existing handlers
     logger.handlers.clear()
@@ -185,7 +185,7 @@ async def main():
         
         # Create directories
         logger.debug("Creating required directories...")
-        directories = ["slideshows", "web", "temp", "logs"]
+        directories = ["slideshows", "web", "logs"]
         for directory in directories:
             os.makedirs(directory, exist_ok=True)
             logger.debug(f"Directory ensured: {directory}")
@@ -243,7 +243,7 @@ async def main():
         ]
         
         for msg in success_messages:
-            logger.info(msg.replace('', '').replace('', '').replace('', '').replace('', '').replace('', '').replace('', '').replace('', ''))
+            logger.info(msg)
             print(msg)
         
         logger.info("System fully operational - entering main loop")

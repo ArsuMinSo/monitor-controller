@@ -3,9 +3,11 @@ import os
 import shutil
 import argparse
 import re
+import ast
+import inspect
 
 
-def generate_docs(output_dir="docs", file_name = None):
+def generate_docs(output_dir="docs", output_format="html", file_name=None):
     os.makedirs(output_dir, exist_ok=True)
 
     files = [
@@ -17,8 +19,16 @@ def generate_docs(output_dir="docs", file_name = None):
         ("src.utils", "Utilities")
     ]
 
+    if output_format.lower() == "md" or output_format.lower() == "markdown":
+        generate_markdown_docs(output_dir, files)
+    else:
+        generate_html_docs(output_dir, files)
+
+
+def generate_html_docs(output_dir, files):
+    """Generate HTML documentation using pydoc"""
     for module, display_name in files:
-        print(f"Generating documentation for {module}...")
+        print(f"Generating HTML documentation for {module}...")
         
         # Generate HTML documentation for each module
         subprocess.run(["py", "-m", "pydoc", "-w", module], check=True)
@@ -48,8 +58,306 @@ def generate_docs(output_dir="docs", file_name = None):
     
     # Generate index page
     generate_index_page(output_dir, files)
-    print(f"\nDocumentation generated in '{output_dir}/' directory")
+    print(f"\nHTML documentation generated in '{output_dir}/' directory")
     print(f"Open '{output_dir}/index.html' to view the documentation")
+
+
+def generate_markdown_docs(output_dir, files):
+    """Generate Markdown documentation by parsing Python source code"""
+    print("Generating Markdown documentation...")
+    
+    # Generate individual module docs
+    for module, display_name in files:
+        print(f"Generating Markdown documentation for {module}...")
+        
+        try:
+            # Convert module path to file path
+            if module == "app":
+                file_path = "app.py"
+            else:
+                file_path = module.replace(".", "/") + ".py"
+            
+            # Generate markdown content
+            markdown_content = generate_module_markdown(module, display_name, file_path)
+            
+            # Write to file
+            md_filename = f"{module.replace('.', '_')}.md"
+            target_file = f"{output_dir}/{md_filename}"
+            
+            with open(target_file, 'w', encoding='utf-8') as f:
+                f.write(markdown_content)
+            
+            print(f"  -> Generated: {target_file}")
+            
+        except Exception as e:
+            print(f"  -> Error generating {module}: {e}")
+    
+    # Generate index markdown
+    generate_markdown_index(output_dir, files)
+    print(f"\nMarkdown documentation generated in '{output_dir}/' directory")
+    print(f"Open '{output_dir}/README.md' to view the documentation")
+
+
+def generate_module_markdown(module_name, display_name, file_path):
+    """Generate Markdown documentation for a single module"""
+    
+    try:
+        # Try to import the module to get docstrings
+        if module_name == "app":
+            import sys
+            sys.path.insert(0, ".")
+            import app as module_obj
+        else:
+            exec(f"from {module_name} import *")
+            module_obj = __import__(module_name, fromlist=[''])
+        
+        # Get module docstring
+        module_doc = inspect.getdoc(module_obj) or "No module documentation available."
+        
+    except Exception as e:
+        module_doc = f"Could not load module documentation: {e}"
+        module_obj = None
+    
+    # Start building markdown
+    markdown = f"""# {display_name}
+
+**Module:** `{module_name}`  
+**File:** `{file_path}`
+
+## Overview
+
+{module_doc}
+
+"""
+    
+    if module_obj:
+        try:
+            # Get classes
+            classes = []
+            functions = []
+            
+            for name, obj in inspect.getmembers(module_obj):
+                if not name.startswith('_'):
+                    if inspect.isclass(obj) and obj.__module__ == module_obj.__name__:
+                        classes.append((name, obj))
+                    elif inspect.isfunction(obj) and obj.__module__ == module_obj.__name__:
+                        functions.append((name, obj))
+            
+            # Document classes
+            if classes:
+                markdown += "## Classes\n\n"
+                for class_name, class_obj in classes:
+                    class_doc = inspect.getdoc(class_obj) or "No documentation available."
+                    markdown += f"### {class_name}\n\n{class_doc}\n\n"
+                    
+                    # Document methods
+                    methods = [method for method in inspect.getmembers(class_obj, predicate=inspect.isfunction) 
+                              if not method[0].startswith('_') or method[0] in ['__init__']]
+                    
+                    if methods:
+                        markdown += "#### Methods\n\n"
+                        for method_name, method_obj in methods:
+                            method_doc = inspect.getdoc(method_obj) or "No documentation available."
+                            try:
+                                signature = inspect.signature(method_obj)
+                                markdown += f"**`{method_name}{signature}`**\n\n{method_doc}\n\n"
+                            except:
+                                markdown += f"**`{method_name}()`**\n\n{method_doc}\n\n"
+                        markdown += "\n"
+            
+            # Document functions
+            if functions:
+                markdown += "## Functions\n\n"
+                for func_name, func_obj in functions:
+                    func_doc = inspect.getdoc(func_obj) or "No documentation available."
+                    try:
+                        signature = inspect.signature(func_obj)
+                        markdown += f"### {func_name}{signature}\n\n{func_doc}\n\n"
+                    except:
+                        markdown += f"### {func_name}()\n\n{func_doc}\n\n"
+        
+        except Exception as e:
+            markdown += f"## Error\n\nCould not extract detailed module information: {e}\n\n"
+    
+    # Add source file analysis if possible
+    try:
+        if os.path.exists(file_path):
+            markdown += generate_source_analysis(file_path)
+    except Exception as e:
+        markdown += f"## Source Analysis\n\nCould not analyze source file: {e}\n\n"
+    
+    # Add footer
+    markdown += f"""
+---
+*Generated by Presentator documentation generator*
+"""
+    
+    return markdown
+
+
+def generate_source_analysis(file_path):
+    """Generate source code analysis for markdown docs"""
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+        
+        # Count lines, functions, classes
+        lines = content.split('\n')
+        total_lines = len(lines)
+        code_lines = len([line for line in lines if line.strip() and not line.strip().startswith('#')])
+        
+        # Parse AST to count functions and classes
+        tree = ast.parse(content)
+        functions = len([node for node in ast.walk(tree) if isinstance(node, ast.FunctionDef)])
+        classes = len([node for node in ast.walk(tree) if isinstance(node, ast.ClassDef)])
+        
+        analysis = f"""## Source File Statistics
+
+- **Total Lines:** {total_lines}
+- **Code Lines:** {code_lines}
+- **Functions:** {functions}
+- **Classes:** {classes}
+- **File Size:** {os.path.getsize(file_path)} bytes
+
+"""
+        return analysis
+        
+    except Exception as e:
+        return f"## Source Analysis\n\nCould not analyze source file: {e}\n\n"
+
+
+def generate_markdown_index(output_dir, modules):
+    """Generate a README.md index file for Markdown documentation"""
+    
+    readme_content = f"""# Presentator - API Documentation
+
+![Presentator](https://img.shields.io/badge/Presentator-Real--time%20Slideshow%20System-blue)
+![Python](https://img.shields.io/badge/Python-3.7%2B-green)
+![WebSocket](https://img.shields.io/badge/WebSocket-Real--time-orange)
+
+## Overview
+
+Presentator is a powerful real-time slideshow system designed for digital signage and presentations. 
+The system enables synchronized slideshow control across multiple network devices using modern WebSocket technology.
+
+## Features
+
+- **Web-based Editor** - Create and edit slideshows directly in your browser
+- **Real-time Sync** - Synchronized display across multiple devices  
+- **PowerPoint Import** - Import and convert PowerPoint presentations
+- **REST API** - Full RESTful API for slideshow management
+- **Network Access** - Access from any device on your network
+- **Responsive Design** - Works on desktop, tablet, and mobile devices
+
+## System Architecture
+
+The Presentator system consists of several key components:
+
+| Component | Purpose |
+|-----------|---------|
+| **HTTP Server** | Web interface and REST API endpoints |
+| **WebSocket Server** | Real-time communication and state sync |
+| **Slideshow Manager** | CRUD operations and format conversion |
+| **PowerPoint Parser** | Import and convert PowerPoint files |
+| **Web Interface** | Controller, viewer, and editor interfaces |
+
+## Module Documentation
+
+"""
+    
+    # Add module links
+    for module, name in modules:
+        md_filename = f"{module.replace('.', '_')}.md"
+        module_descriptions = {
+            "app": "Main application entry point and server coordinator",
+            "src.http_server": "HTTP server with REST API endpoints",
+            "src.slideshow_manager": "Core slideshow CRUD operations",
+            "src.websocket_manager": "Real-time WebSocket communication",
+            "src.pptx_parse": "PowerPoint import functionality",
+            "src.utils": "Network utilities and helpers"
+        }
+        
+        description = module_descriptions.get(module, "System module")
+        readme_content += f"- **[{name}]({md_filename})** - {description}\n"
+    
+    readme_content += f"""
+
+## Quick Start
+
+1. **Install Dependencies**
+   ```bash
+   py -m pip install -r requirements.txt
+   ```
+
+2. **Start the System**
+   ```bash
+   py app.py
+   ```
+
+3. **Access the Interface**
+   - Controller: http://localhost:8080/web/controller.html
+   - Viewer: http://localhost:8080/web/viewer.html
+   - Editor: http://localhost:8080/web/editor.html
+
+## API Endpoints
+
+| Endpoint | Method | Purpose |
+|----------|--------|---------|
+| `/api/slideshows` | GET | List all slideshows |
+| `/api/slideshow/<id>` | GET | Get slideshow details |
+| `/api/load_slideshow` | POST | Load a slideshow |
+| `/api/upload_pptx` | POST | Upload PowerPoint file |
+| `/api/delete_slideshow` | POST | Delete a slideshow |
+
+## WebSocket Events
+
+The system uses WebSocket communication on port 50002 for real-time updates:
+
+- **play** - Start slideshow playback
+- **pause** - Pause slideshow
+- **next_slide** - Advance to next slide
+- **prev_slide** - Go to previous slide
+- **set_slide** - Jump to specific slide
+
+## Development
+
+### File Structure
+```
+monitor-controller/
+app.py                 # Main application
+src/                   # Core modules
+http_server.py     # HTTP server
+websocket_manager.py # WebSocket server  
+slideshow_manager.py # Slideshow operations
+pptx_parse.py      # PowerPoint parser
+utils.py           # Utilities
+web/                   # Web interface
+controller.html    # Control interface
+viewer.html        # Display interface
+editor.html        # Slideshow editor
+style.css          # Styles
+slideshows/            # Slideshow storage
+```
+
+### Requirements
+
+- Python 3.7 or higher
+- websockets - WebSocket server implementation
+- python-pptx - PowerPoint file processing
+- Pillow - Image processing support
+
+## License
+
+This project is open source. See the repository for license details.
+
+---
+*Documentation generated by Presentator documentation generator*
+*Last updated: {__import__('datetime').datetime.now().strftime('%Y-%m-%d %H:%M:%S')}*
+"""
+    
+    # Write the README
+    with open(f"{output_dir}/README.md", 'w', encoding='utf-8') as f:
+        f.write(readme_content)
 
 
 def add_styling_and_nav(html_content, current_module, display_name, all_modules):
@@ -541,4 +849,21 @@ def generate_index_page(output_dir, modules):
 
 
 if __name__ == "__main__":
-    generate_docs(output_dir="docs") 
+    parser = argparse.ArgumentParser(description='Generate documentation for Presentator system')
+    parser.add_argument('--format', '-f', 
+                       choices=['html', 'md', 'markdown'], 
+                       default='html',
+                       help='Output format (html or md/markdown)')
+    parser.add_argument('--output', '-o', 
+                       default='docs',
+                       help='Output directory (default: docs)')
+    parser.add_argument('--file', 
+                       help='Generate docs for specific file (not implemented yet)')
+    
+    args = parser.parse_args()
+    
+    print(f"Generating {args.format.upper()} documentation...")
+    print(f"Output directory: {args.output}")
+    print("=" * 50)
+    
+    generate_docs(output_dir=args.output, output_format=args.format, file_name=args.file) 

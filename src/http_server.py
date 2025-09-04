@@ -10,6 +10,7 @@ import http.server
 import socketserver
 import json
 import logging
+import datetime
 from pathlib import Path
 
 
@@ -100,6 +101,8 @@ class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         try:
             if self.path == '/api/slideshows':
                 self.handle_get_slideshows()
+            elif self.path == '/api/clients':
+                self.handle_get_clients()
             elif self.path == '/api/save_slideshow':
                 self.handle_save_slideshow()
             elif self.path == '/api/load_slideshow':
@@ -133,6 +136,34 @@ class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         self.send_header('Access-Control-Allow-Origin', '*')
         self.end_headers()
         self.wfile.write(json.dumps(slideshows).encode())
+    
+    def handle_get_clients(self):
+        """
+        Handle GET /api/clients endpoint.
+        
+        Returns information about currently connected WebSocket clients,
+        including IP addresses, connection times, and activity.
+        
+        Response:
+            200: JSON object with client statistics and details
+            500: Internal server error
+        """
+        client_stats = self.websocket_manager.get_client_stats()
+        unique_ips = self.websocket_manager.get_unique_ips()
+        
+        response_data = {
+            "total_clients": client_stats["total_clients"],
+            "unique_ips": len(unique_ips),
+            "ip_addresses": unique_ips,
+            "clients": client_stats["clients"],
+            "server_time": datetime.datetime.now().isoformat()
+        }
+        
+        self.send_response(200)
+        self.send_header('Content-type', 'application/json')
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.end_headers()
+        self.wfile.write(json.dumps(response_data).encode())
     
     def handle_save_slideshow(self):
         """
