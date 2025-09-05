@@ -757,15 +757,8 @@ body {
 
 .slide-image {
   /* Full window stretch - background style */
-  position: center;
-  top: 0;
-  left: 0;
-  height: auto;
-  width: 65%;
   object-fit: cover;
-  border-radius: 0;
-  box-shadow: none;
-  margin: 0;
+  height: 90vh;
 }
 
 /* List styles */

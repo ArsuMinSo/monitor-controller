@@ -264,7 +264,7 @@ def format_slide_html(content_parts, images):
         if len(images) == 1:
             # Single image - center it
             img_src = f"/slideshows/{images[0]['filename']}"
-            img_html = f'<div align="center" class="slide-image"><img src="{img_src}"/></div>'
+            img_html = f'<div align="center"><img class="slide-image" src="{img_src}"/></div>'
             html_parts.append(img_html)
         elif len(images) == 2:
             # Two images - side by side
