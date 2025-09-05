@@ -247,6 +247,7 @@ class SlideShowManager:
             For editor slideshows, also removes associated image directories.
             For markdown slideshows, removes entire slideshow directory.
         """
+        self.discover_slideshows()
         slideshow = self.load_slideshow_by_id(slideshow_id)
         if not slideshow:
             return self.slideshows
@@ -257,13 +258,11 @@ class SlideShowManager:
             if slideshow_path.exists():
                 if slideshow['type'] == 'editor':
                     # Delete JSON file
-                    log(f"Deleting slideshow file: {slideshow_path}")
-                    slideshow_path.unlink()
-                    
+                    self.logger.info(f"Deleting slideshow file: {slideshow_path}")  
+                    os.remove(slideshow_path)               
                     
                     # Also delete associated image directory if it exists
                     slideshow_name = slideshow.get('name', slideshow_id)
-                    log(f"Deleting images for slideshow: {slideshow_name}")
                     # Clean name for file system (same as in pptx_parse.py)
                     clean_name = "".join(c for c in slideshow_name if c.isalnum() or c in (' ', '-', '_')).strip()
                     presentation_name = clean_name.replace(' ', '_')
@@ -272,7 +271,6 @@ class SlideShowManager:
                     if image_dir.exists() and image_dir.is_dir():
                         import shutil
                         shutil.rmtree(image_dir)
-                        print(f"Deleted image directory: {image_dir}")
                 else:
                     # Delete markdown directory
                     import shutil

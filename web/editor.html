@@ -184,6 +184,9 @@
             // Store the slideshow ID for saving back to the controller format
             currentSlideshowFilename = slideshowId || (data.name + '.md');
             
+            // Store the original name for save logic
+            originalSlideshowName = data.name || 'Slideshow from Controller';
+            
             // Set loading flag
             isLoadingFromServer = true;
             
@@ -283,27 +286,31 @@
     // --- Slide Manager State ---
 // Default background color for new slides: white or light brown
 const DEFAULT_BG = '#f7ecd0'; // or try '#f7ecd0' for light brown
-let slides = [{ html: '<p>Click here to start editing your first slide...</p>', duration: 6000, bgColor: DEFAULT_BG }];
+    let slides = [{ html: '<p>Click here to start editing your first slide...</p>', duration: 6000, bgColor: DEFAULT_BG }];
     let currentSlide = 0;
     let codeView = false;
     let isFullscreen = false;
     let isLoadingFromServer = false; // Flag to prevent clearing content during load
     let currentSlideshowFilename = null; // Track the filename of the currently loaded slideshow
-
-    // Save slides to server via POST
+    let originalSlideshowName = null; // Track the original name of the slideshow for save logic    // Save slides to server via POST
     function saveSlideshowToServer() {
       saveCurrentSlide();
-      const slideshowName = document.getElementById('slideshowNameInput').value.trim() || 'Untitled Slideshow';
+      const slideshowName = document.getElementById('slideshowNameInput').value.trim();
       
       const slideshowData = {
         name: slideshowName,
         slides: slides
       };
       
-      // If we're updating an existing slideshow, include the filename
-      if (currentSlideshowFilename) {
+      // Check if name has changed from the original
+      const nameChanged = originalSlideshowName && (slideshowName !== originalSlideshowName);
+      
+      // If we're updating an existing slideshow AND the name hasn't changed, include the filename
+      if (currentSlideshowFilename && !nameChanged) {
         slideshowData.filename = currentSlideshowFilename;
-        console.log('Saving with existing filename:', currentSlideshowFilename);
+        console.log('Updating existing slideshow:', currentSlideshowFilename);
+      } else if (nameChanged) {
+        console.log('Name changed from "' + originalSlideshowName + '" to "' + slideshowName + '", saving as new slideshow');
       } else {
         console.log('Saving new slideshow:', slideshowName);
       }
@@ -316,13 +323,18 @@ let slides = [{ html: '<p>Click here to start editing your first slide...</p>', 
       .then(r => {
         if (r.ok) {
           return r.json().then(data => {
-            const action = currentSlideshowFilename ? 'updated' : 'created';
-            alert(`Slideshow "${slideshowName}" ${action} successfully!`);
-            // If it's a new slideshow, get the actual filename from server response
-            if (!currentSlideshowFilename && data.filepath) {
-              // Extract just the filename from the full path
-              const pathParts = data.filepath.split(/[/\\]/);
-              currentSlideshowFilename = pathParts[pathParts.length - 1];
+            if (currentSlideshowFilename && !nameChanged) {
+              alert(`Slideshow "${slideshowName}" updated successfully!`);
+            } else {
+              alert(`Slideshow "${slideshowName}" created successfully!`);
+              // For new slideshows, get the actual filename from server response
+              if (data.filepath) {
+                // Extract just the filename from the full path
+                const pathParts = data.filepath.split(/[/\\]/);
+                currentSlideshowFilename = pathParts[pathParts.length - 1];
+                // Update original name since we now have a saved slideshow
+                originalSlideshowName = slideshowName;
+              }
             }
           });
         } else {
@@ -338,6 +350,7 @@ let slides = [{ html: '<p>Click here to start editing your first slide...</p>', 
         slides = [{ html: '<p>Click here to start editing your first slide...</p>', duration: 6000, bgColor: DEFAULT_BG }];
         currentSlide = 0;
         currentSlideshowFilename = null; // Clear filename tracking
+        originalSlideshowName = null; // Clear original name tracking
         document.getElementById('slideshowNameInput').value = 'Untitled Slideshow';
         renderSlideThumbs();
         selectSlide(0);
@@ -373,6 +386,9 @@ let slides = [{ html: '<p>Click here to start editing your first slide...</p>', 
                 if (!currentSlideshowFilename.endsWith('.json')) {
                   currentSlideshowFilename += '.json';
                 }
+                
+                // Store the original name for save logic
+                originalSlideshowName = slideshowName;
                 
                 alert(`Slideshow "${slideshowName}" loaded from server!`);
               } else {
@@ -426,6 +442,9 @@ let slides = [{ html: '<p>Click here to start editing your first slide...</p>', 
                 
                 // Store the filename for future saves
                 currentSlideshowFilename = filename;
+                
+                // Store the original name for save logic
+                originalSlideshowName = slideshowName;
                 
                 alert(`Slideshow "${slideshowName}" loaded successfully!`);
               } else {

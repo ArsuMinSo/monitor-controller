@@ -284,22 +284,25 @@ class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         try:
             data = json.loads(post_data)
             slideshow_id = data.get('id')
-            print(f"Deleting slideshow with ID: {slideshow_id}")
-            print(f"data: {data}")
-            
             if slideshow_id:
                 updated_slideshows = self.slideshow_manager.delete_slideshow(slideshow_id)
+                # Update all connected clients
                 self.websocket_manager.update_slideshows_list(updated_slideshows)
+                self.logger.info("WebSocket clients updated with new slideshow list")
                 
                 self.send_response(200)
                 self.send_header('Content-type', 'application/json')
                 self.send_header('Access-Control-Allow-Origin', '*')
                 self.end_headers()
                 self.wfile.write(json.dumps({"success": True}).encode())
+                self.logger.info("Delete response sent successfully")
             else:
+                self.logger.error("Delete request missing slideshow ID")
                 self.send_error(400, "Slideshow ID required")
                 
         except Exception as e:
+            self.logger.error(f"Delete operation failed: {e}")
+            self.logger.error(f"Exception details: {type(e).__name__}: {str(e)}")
             self.send_error(400, f"Delete failed: {e}")
 
     def handle_upload_pptx(self):

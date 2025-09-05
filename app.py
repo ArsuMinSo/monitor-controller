@@ -62,7 +62,7 @@ def setup_logging():
     
     # Create root logger
     logger = logging.getLogger()
-    logger.setLevel(logging.INFO)
+    logger.setLevel(logging.DEBUG)
     
     # Clear any existing handlers
     logger.handlers.clear()
