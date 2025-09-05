@@ -82,12 +82,6 @@
                 <button class="btn btn-primary" onclick="refreshSlideshows()" title="Reload slideshow list">
                     <img src="icons/refresh.svg" class="icon" alt="Refresh">
                 </button>
-                <button class="btn btn-info" id="editSlideshowBtn" onclick="editCurrentSlideshow()" style="display: none;" title="Edit current slideshow">
-                    <img src="icons/edit.svg" class="icon" alt="Edit">
-                </button>
-                <button class="btn btn-danger" id="removeSlideshowBtn" onclick="removeCurrentSlideshow()" style="display: none;" title="Delete current slideshow">
-                    <img src="icons/delete.svg" class="icon" alt="Delete">
-                </button>
             </div>
         </div>
 
@@ -219,7 +213,6 @@
                     this.ws = new WebSocket(wsUrl);
                     
                     this.ws.onopen = () => {
-                        console.log('Connected to slideshow server');
                         this.updateConnectionStatus(true);
                         this.refreshSlideshows();
                     };
@@ -254,7 +247,6 @@
                     };
 
                     this.ws.onclose = () => {
-                        console.log('Disconnected from server');
                         this.updateConnectionStatus(false);
                         // Try to reconnect after 3 seconds
                         setTimeout(() => this.connectWebSocket(), 3000);
@@ -286,15 +278,9 @@
                 const slideshowEl = document.getElementById('currentSlideshow');
                 const slideEl = document.getElementById('currentSlide');
                 const statusEl = document.getElementById('playStatus');
-                const editBtn = document.getElementById('editSlideshowBtn');
-                const removeBtn = document.getElementById('removeSlideshowBtn');
 
                 if (this.currentState.current_slideshow) {
                     slideshowEl.textContent = this.currentState.current_slideshow.name;
-                    
-                    // Show edit and remove buttons when slideshow is loaded
-                    editBtn.style.display = 'inline-block';
-                    removeBtn.style.display = 'inline-block';
                     
                     const current = this.currentState.current_slide + 1;
                     const total = this.currentState.current_slideshow.slides.length;
@@ -306,10 +292,6 @@
                     slideshowEl.textContent = 'None';
                     slideEl.textContent = '0 / 0';
                     this.slideDuration = 0;
-                    
-                    // Hide edit and remove buttons when no slideshow is loaded
-                    editBtn.style.display = 'none';
-                    removeBtn.style.display = 'none';
                 }
 
                 statusEl.textContent = this.currentState.playing ? 'Playing' : 'Stopped';
@@ -325,6 +307,7 @@
             updateSlideshowList() {
                 const listEl = document.getElementById('slideshowList');
                 
+                
                 if (!this.currentState.slideshows || this.currentState.slideshows.length === 0) {
                     listEl.innerHTML = `
                         <div class="slideshow-list-empty">
@@ -338,7 +321,7 @@
 
                 listEl.innerHTML = '';
                 
-                this.currentState.slideshows.forEach(slideshow => {
+                this.currentState.slideshows.forEach((slideshow, index) => {
                     const isActive = this.currentState.current_slideshow?.id === slideshow.id;
                     
                     const card = document.createElement('div');
@@ -354,11 +337,14 @@
                         </div>
                         <div class="card-body">
                             <div class="card-controls">
-                                <button class="btn btn-primary btn-small" onclick="loadSlideshow('${slideshow.id}')" title="Load this slideshow">
-                                    <img src="icons/load.svg" class="icon" alt="Load">
-                                </button>
-                                <button class="btn btn-success btn-small" onclick="loadAndPlay('${slideshow.id}')" title="Load and start playing this slideshow">
+                                <button class="btn btn-success btn-small load-play-btn" data-slideshow-id="${slideshow.id}" title="Load and start playing this slideshow">
                                     <img src="icons/play.svg" class="icon" alt="Play">
+                                </button>
+                                <button class="btn btn-info btn-small edit-btn" data-slideshow-id="${slideshow.id}" data-slideshow-name="${slideshow.name.replace(/"/g, '&quot;')}" title="Edit this slideshow">
+                                    <img src="icons/edit.svg" class="icon" alt="Edit">
+                                </button>
+                                <button class="btn btn-danger btn-small remove-btn" data-slideshow-id="${slideshow.id}" data-slideshow-name="${slideshow.name.replace(/"/g, '&quot;')}" title="Delete this slideshow">
+                                    <img src="icons/delete.svg" class="icon" alt="Remove">
                                 </button>
                             </div>
                         </div>
@@ -366,7 +352,46 @@
                     
                     listEl.appendChild(card);
                 });
+                
+                // Add event listeners for the buttons
+                this.attachCardEventListeners();
             }
+            
+            attachCardEventListeners() {
+                // Load & Play buttons
+                document.querySelectorAll('.load-play-btn').forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        const slideshowId = e.target.closest('.load-play-btn').getAttribute('data-slideshow-id');
+                        this.loadAndPlay(slideshowId);
+                    });
+                });
+                
+                // Edit buttons
+                document.querySelectorAll('.edit-btn').forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const slideshowId = e.target.closest('.edit-btn').getAttribute('data-slideshow-id');
+                        const slideshowName = e.target.closest('.edit-btn').getAttribute('data-slideshow-name');
+                        editSlideshow(slideshowId, slideshowName);
+                    });
+                });
+                
+                // Remove buttons
+                document.querySelectorAll('.remove-btn').forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const slideshowId = e.target.closest('.remove-btn').getAttribute('data-slideshow-id');
+                        const slideshowName = e.target.closest('.remove-btn').getAttribute('data-slideshow-name');
+                        removeSlideshow(slideshowId, slideshowName);
+                    });
+                });
+                
+                    document.querySelectorAll('.load-play-btn').length, 'load buttons,', 
+                    document.querySelectorAll('.edit-btn').length, 'edit buttons, and',
+                    document.querySelectorAll('.remove-btn').length, 'remove buttons';
+            };
 
             sendCommand(command, params = {}) {
                 if (this.ws && this.ws.readyState === WebSocket.OPEN) {
@@ -463,6 +488,69 @@
             controller.loadAndPlay(id);
         }
 
+        function removeSlideshow(id, name) {
+            if (confirm(`Are you sure you want to delete the slideshow "${name}"? This action cannot be undone.`)) {
+                // Send delete request to server
+                fetch('/api/delete_slideshow', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ id: id })
+                })
+                .then(response => {
+                    if (response.ok) {
+                        alert(`Slideshow "${name}" has been deleted successfully.`);
+                        // Refresh the slideshow list
+                        controller.refreshSlideshows();
+                    } else {
+                        return response.text().then(text => {
+                            console.error('Delete failed with response:', text);
+                            throw new Error('Failed to delete slideshow');
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error deleting slideshow:', error);
+                    alert('Failed to delete slideshow. Please try again.');
+                });
+            } else {
+            }
+        }
+
+        function editSlideshow(id, name) {
+            
+            // Find the slideshow in the current state
+            const slideshow = controller.currentState.slideshows.find(s => s.id === id);
+            
+            if (slideshow) {
+                
+                // Convert the slideshow to the format expected by the editor
+                const slideshowData = {
+                    name: slideshow.name,
+                    slides: slideshow.slides.map((slide, index) => {
+                        const processedSlide = {
+                            html: slide.content || slide.html || '',
+                            duration: slide.duration || slide.meta?.duration || 6000,
+                            bgColor: slide.bgColor || slide.background || '#f7ecd0'
+                        };
+                        
+                        return processedSlide;
+                    })
+                };
+                
+                // Store the slideshow data in sessionStorage for the editor to pick up
+                sessionStorage.setItem('editorSlideshowData', JSON.stringify(slideshowData));
+                sessionStorage.setItem('editorSlideshowId', id);
+                
+                // Open the editor in a new tab/window
+                window.open('editor.html', '_blank');
+            } else {
+                console.error('Slideshow not found:', id);
+                alert(`Slideshow "${name}" could not be found for editing.`);
+            }
+        }
+
         function play() {
             controller.play();
         }
@@ -485,7 +573,6 @@
 
         function editCurrentSlideshow() {
             if (controller.currentState.current_slideshow) {
-                console.log('Slideshow type:', controller.currentState.current_slideshow.type);
                 
                 // Log each slide before processing
                 controller.currentState.current_slideshow.slides.forEach((slide, index) => {

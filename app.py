@@ -40,9 +40,25 @@ def setup_logging():
     
     Creates logs directory and implements log rotation to prevent
     disk space issues from accumulating log files.
+    
+    Log Rotation:
+    - Forced rotation on every system startup (fresh logs each session)
+    - Main log: presentator.log (10MB max, 5 backups: .log.1 to .log.5)
+    - Error log: errors.log (5MB max, 5 backups: .log.1 to .log.5)
+    
+    Startup Process:
+    1. Existing logs are rotated (.log -> .log.1, .log.1 -> .log.2, etc.)
+    2. Fresh empty log files are created for the new session
+    3. Old logs beyond 5 backups are automatically removed
     """
     # Create logs directory
     os.makedirs("logs", exist_ok=True)
+
+    # Rotate existing logs on startup before creating new handlers
+    rotate_logs_on_startup()
+    
+    # Clean up old log files beyond rotation limit
+    cleanup_old_log_files()
     
     # Create root logger
     logger = logging.getLogger()
@@ -71,16 +87,22 @@ def setup_logging():
     # Main log file - DEBUG level with rotation
     main_log_file = os.path.join("logs", "presentator.log")
     file_handler = logging.handlers.RotatingFileHandler(
-        main_log_file, maxBytes=10*1024*1024, backupCount=5, encoding='utf-8'
+        main_log_file, 
+        maxBytes=10*1024*1024,  # 10MB per file
+        backupCount=5,          # Keep 5 old files (.log.1, .log.2, .log.3, .log.4, .log.5)
+        encoding='utf-8'
     )
     file_handler.setLevel(logging.DEBUG)
     file_handler.setFormatter(detailed_formatter)
     logger.addHandler(file_handler)
     
-    # Error log file - ERROR level only
+    # Error log file - ERROR level only with rotation
     error_log_file = os.path.join("logs", "errors.log")
     error_handler = logging.handlers.RotatingFileHandler(
-        error_log_file, maxBytes=5*1024*1024, backupCount=3, encoding='utf-8'
+        error_log_file,
+        maxBytes=5*1024*1024,   # 5MB per file
+        backupCount=5,          # Keep 5 old files (.log.1, .log.2, .log.3, .log.4, .log.5)
+        encoding='utf-8'
     )
     error_handler.setLevel(logging.ERROR)
     error_handler.setFormatter(detailed_formatter)
@@ -89,10 +111,145 @@ def setup_logging():
     # Log startup message
     logger.info("=" * 50)
     logger.info("Presentator System Starting - %s", datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
-    logger.info("Logging initialized - Main: %s, Errors: %s", main_log_file, error_log_file)
+    logger.info("Logging initialized with startup rotation - Main: %s, Errors: %s", main_log_file, error_log_file)
+    logger.info("Log rotation: Main (10MB, 5 backups), Errors (5MB, 5 backups)")
+    logger.info("Logs rotated on every system startup")
     logger.info("=" * 50)
     
     return logger
+
+
+def cleanup_old_log_files():
+    """
+    Clean up old log files that exceed the rotation limit.
+    
+    Removes log files beyond .log.5 for both presentator.log and errors.log
+    to prevent unlimited accumulation of old log files.
+    """
+    if not os.path.exists("logs"):
+        return
+        
+    try:
+        # Clean up presentator log files
+        cleanup_log_series("presentator.log", max_backups=5)
+        
+        # Clean up error log files  
+        cleanup_log_series("errors.log", max_backups=5)
+        
+    except Exception as e:
+        print(f"Warning: Could not clean up old log files: {e}")
+
+
+def cleanup_log_series(base_name, max_backups=5):
+    """
+    Clean up a series of rotated log files.
+    
+    Args:
+        base_name (str): Base name of the log file (e.g., "presentator.log")
+        max_backups (int): Maximum number of backup files to keep
+    """
+    logs_dir = "logs"
+    
+    # Find all backup files for this log series
+    backup_files = []
+    for file in os.listdir(logs_dir):
+        if file.startswith(base_name + ".") and file[len(base_name)+1:].isdigit():
+            backup_num = int(file[len(base_name)+1:])
+            backup_files.append((backup_num, file))
+    
+    # Sort by backup number (highest first)
+    backup_files.sort(reverse=True)
+    
+    # Remove files beyond the limit
+    for backup_num, filename in backup_files:
+        if backup_num > max_backups:
+            file_path = os.path.join(logs_dir, filename)
+            try:
+                os.remove(file_path)
+                print(f"Removed old log file: {filename}")
+            except Exception as e:
+                print(f"Warning: Could not remove {filename}: {e}")
+
+
+def rotate_logs_on_startup():
+    """
+    Force rotation of existing log files on system startup.
+    
+    This function manually rotates log files at each startup, ensuring
+    a fresh start for each session. The rotation pattern:
+    - presentator.log -> presentator.log.1
+    - presentator.log.1 -> presentator.log.2
+    - etc.
+    """
+    if not os.path.exists("logs"):
+        return
+        
+    try:
+        # Rotate presentator log files
+        rotate_log_file_series("presentator.log", max_backups=5)
+        
+        # Rotate error log files  
+        rotate_log_file_series("errors.log", max_backups=5)
+        
+        print("Log files rotated on startup")
+        
+    except Exception as e:
+        print(f"Warning: Could not rotate log files on startup: {e}")
+
+
+def rotate_log_file_series(base_name, max_backups=5):
+    """
+    Rotate a series of log files on startup.
+    
+    Args:
+        base_name (str): Base name of the log file (e.g., "presentator.log")
+        max_backups (int): Maximum number of backup files to keep
+    """
+    logs_dir = "logs"
+    main_log_path = os.path.join(logs_dir, base_name)
+    
+    # Only rotate if the main log file exists and has content
+    if not os.path.exists(main_log_path) or os.path.getsize(main_log_path) == 0:
+        return
+    
+    # Find existing backup files
+    backup_files = []
+    for file in os.listdir(logs_dir):
+        if file.startswith(base_name + ".") and file[len(base_name)+1:].isdigit():
+            backup_num = int(file[len(base_name)+1:])
+            if backup_num <= max_backups:
+                backup_files.append(backup_num)
+    
+    # Sort backup numbers in descending order for safe renaming
+    backup_files.sort(reverse=True)
+    
+    # Rename existing backup files (shift them up by 1)
+    for backup_num in backup_files:
+        old_path = os.path.join(logs_dir, f"{base_name}.{backup_num}")
+        new_path = os.path.join(logs_dir, f"{base_name}.{backup_num + 1}")
+        
+        if backup_num >= max_backups:
+            # Remove files that would exceed the limit
+            try:
+                os.remove(old_path)
+                print(f"Removed old backup: {base_name}.{backup_num}")
+            except Exception as e:
+                print(f"Warning: Could not remove {old_path}: {e}")
+        else:
+            # Rename to next number
+            try:
+                os.rename(old_path, new_path)
+                print(f"Rotated: {base_name}.{backup_num} -> {base_name}.{backup_num + 1}")
+            except Exception as e:
+                print(f"Warning: Could not rotate {old_path}: {e}")
+    
+    # Move main log file to .1
+    try:
+        backup_path = os.path.join(logs_dir, f"{base_name}.1")
+        os.rename(main_log_path, backup_path)
+        print(f"Rotated: {base_name} -> {base_name}.1")
+    except Exception as e:
+        print(f"Warning: Could not rotate main log {main_log_path}: {e}")
 
 
 def check_dependencies():

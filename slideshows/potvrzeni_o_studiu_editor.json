@@ -1,0 +1,11 @@
+{
+  "name": "potvrzeni_o_studiu",
+  "slides": [
+    {
+      "html": "<div align=\"center\"><img src=\"/slideshows/potvrzeni_o_studiu_images/potvrzeni_o_studiu_slide_1_img_1.png\"></div>",
+      "duration": 5000,
+      "bgColor": "#f8f9fa"
+    }
+  ],
+  "filename": "potvrzeni_o_studiu_editor"
+}

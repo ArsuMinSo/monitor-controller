@@ -52,11 +52,17 @@
 }
 .card-controls {
   display: flex;
-  gap: 8px;
+  gap: 6px;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
 }
 .btn-small {
-  font-size: 0.95em;
-  padding: 6px 12px;
+  font-size: 0.8em;
+  padding: 5px 8px;
+  min-width: fit-content;
+  white-space: nowrap;
+  flex: 1;
 }
 
 /* Editor Controls */
@@ -113,28 +119,15 @@
   --radius: 12px;
   --font-main: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   --font-mono: 'Fira Mono', 'Consolas', monospace;
+  --info: #17a2b8;
   --success: #28a745;
   --warning: #ffc107;
   --danger: #dc3545;
+  --info-dark: #138496;
   --success-dark: #1e7e34;
   --warning-dark: #e0a800;
   --danger-dark: #c82333;
 }
-
-:root {
-  --primary: #667eea;
-  --primary-dark: #34495e;
-  --background: #f4f6fa;
-  --surface: #fff;
-  --surface-alt: #f8f9fa;
-  --border: #d1d5db;
-  --border-alt: #e3e7ef;
-  --shadow: 0 8px 32px rgba(0,0,0,0.08);
-  --radius: 12px;
-  --font-main: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  --font-mono: 'Fira Mono', 'Consolas', monospace;
-}
-
 
 body {
   background: var(--background);
@@ -143,7 +136,6 @@ body {
   padding: 0;
   color: #222;
 }
-
 
 .container, .editor-container {
   max-width: 90%;
@@ -165,8 +157,8 @@ body {
   background: var(--background);
 }
 .slide {
-  width: 95%;
-  height: 95%;
+  width: 100%;
+  height: 100%;
   padding: 2rem;
   display: none;
   text-align: left; /* Default, but allow individual elements to override */
@@ -175,7 +167,7 @@ body {
   box-shadow: 0 8px 32px rgba(0,0,0,0.13);
   border: 1.5px solid var(--border-alt);
   transition: opacity 0.5s cubic-bezier(.4,0,.2,1), box-shadow 0.3s;
-  opacity: 0;
+  opacity: 1;
   animation: fadeInSlide 0.7s cubic-bezier(.4,0,.2,1);
   overflow: auto; /* Allow scrolling for long content */
   box-sizing: border-box; /* Include padding in width calculation */
@@ -234,15 +226,6 @@ body {
 .slide li {
   margin-bottom: 0.5rem;
   padding-left: 0.5rem;
-}
-
-.slide-image {
-  max-width: 80%;
-  max-height: 60%;
-  object-fit: contain;
-  margin: 1.5rem 0;
-  border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
 }
 
 /* Section, header, status for controller */
@@ -309,6 +292,13 @@ body {
 }
 .btn-danger:hover {
   background: var(--danger-dark);
+}
+.btn-info {
+  background: var(--info);
+  color: #fff;
+}
+.btn-info:hover {
+  background: var(--info-dark);
 }
 /* Viewer link (controller) */
 .viewer-link {
@@ -765,18 +755,17 @@ body {
   color: #0056b3;
 }
 
-/* Preserve font families, sizes, and colors from editor - inline styles take precedence */
-.slide-content {
-  font-family: inherit;
-}
-
 .slide-image {
-  max-width: 80%;
-  max-height: 60%;
-  object-fit: contain;
-  margin: 1rem 0;
-  border-radius: 10px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  /* Full window stretch - background style */
+  position: center;
+  top: 0;
+  left: 0;
+  height: auto;
+  width: 65%;
+  object-fit: cover;
+  border-radius: 0;
+  box-shadow: none;
+  margin: 0;
 }
 
 /* List styles */

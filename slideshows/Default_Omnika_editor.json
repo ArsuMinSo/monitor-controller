@@ -1,0 +1,41 @@
+{
+  "name": "Default_Omnika_fast",
+  "slides": [
+    {
+      "html": "<div align=\"center\" style=\"margin: 15px 0; max-width: 100%; overflow: hidden;\"><img src=\"/slideshows/Default_Omnika_images/Default_Omnika_slide_1_img_1.png\" style=\"max-width: 70%; max-height: 60vh; height: auto; width: auto; border-radius: 6px; box-shadow: rgba(0, 0, 0, 0.15) 0px 2px 6px; object-fit: contain; --darkreader-inline-boxshadow: var(--darkreader-background-00000026, rgba(24, 26, 27, 0.15)) 0px 2px 6px;\" data-darkreader-inline-boxshadow=\"\"></div>",
+      "duration": 10000,
+      "bgColor": "#f8f9fa"
+    },
+    {
+      "html": "<div align=\"center\" style=\"margin: 15px 0; max-width: 100%; overflow: hidden;\"><img src=\"/slideshows/Default_Omnika_images/Default_Omnika_slide_2_img_1.png\" style=\"max-width: 70%; max-height: 60vh; height: auto; width: auto; border-radius: 6px; box-shadow: rgba(0, 0, 0, 0.15) 0px 2px 6px; object-fit: contain; --darkreader-inline-boxshadow: var(--darkreader-background-00000026, rgba(24, 26, 27, 0.15)) 0px 2px 6px;\" data-darkreader-inline-boxshadow=\"\"></div>",
+      "duration": 10000,
+      "bgColor": "#f8f9fa"
+    },
+    {
+      "html": "<div align=\"center\" style=\"margin: 15px 0; max-width: 100%; overflow: hidden;\"><img src=\"/slideshows/Default_Omnika_images/Default_Omnika_slide_3_img_1.png\" style=\"max-width: 70%; max-height: 60vh; height: auto; width: auto; border-radius: 6px; box-shadow: rgba(0, 0, 0, 0.15) 0px 2px 6px; object-fit: contain; --darkreader-inline-boxshadow: var(--darkreader-background-00000026, rgba(24, 26, 27, 0.15)) 0px 2px 6px;\" data-darkreader-inline-boxshadow=\"\"></div>",
+      "duration": 10000,
+      "bgColor": "#f8f9fa"
+    },
+    {
+      "html": "<div align=\"center\" style=\"margin: 15px 0; max-width: 100%; overflow: hidden;\"><img src=\"/slideshows/Default_Omnika_images/Default_Omnika_slide_4_img_1.png\" style=\"max-width: 70%; max-height: 60vh; height: auto; width: auto; border-radius: 6px; box-shadow: rgba(0, 0, 0, 0.15) 0px 2px 6px; object-fit: contain; --darkreader-inline-boxshadow: var(--darkreader-background-00000026, rgba(24, 26, 27, 0.15)) 0px 2px 6px;\" data-darkreader-inline-boxshadow=\"\"></div>",
+      "duration": 10000,
+      "bgColor": "#f8f9fa"
+    },
+    {
+      "html": "<div align=\"center\" style=\"margin: 15px 0; max-width: 100%; overflow: hidden;\"><img src=\"/slideshows/Default_Omnika_images/Default_Omnika_slide_5_img_1.png\" style=\"max-width: 70%; max-height: 60vh; height: auto; width: auto; border-radius: 6px; box-shadow: rgba(0, 0, 0, 0.15) 0px 2px 6px; object-fit: contain; --darkreader-inline-boxshadow: var(--darkreader-background-00000026, rgba(24, 26, 27, 0.15)) 0px 2px 6px;\" data-darkreader-inline-boxshadow=\"\"></div>",
+      "duration": 10000,
+      "bgColor": "#f8f9fa"
+    },
+    {
+      "html": "<div align=\"center\" style=\"margin: 15px 0; max-width: 100%; overflow: hidden;\"><img src=\"/slideshows/Default_Omnika_images/Default_Omnika_slide_6_img_1.png\" style=\"max-width: 70%; max-height: 60vh; height: auto; width: auto; border-radius: 6px; box-shadow: rgba(0, 0, 0, 0.15) 0px 2px 6px; object-fit: contain; --darkreader-inline-boxshadow: var(--darkreader-background-00000026, rgba(24, 26, 27, 0.15)) 0px 2px 6px;\" data-darkreader-inline-boxshadow=\"\"></div>",
+      "duration": 10000,
+      "bgColor": "#f8f9fa"
+    },
+    {
+      "html": "<div><img src=\"/slideshows/Default_Omnika_images/Default_Omnika_slide_7_img_1.png\" class=\"slide-img\"></div>",
+      "duration": 10000,
+      "bgColor": "#f8f9fa"
+    }
+  ],
+  "filename": "Default_Omnika_editor"
+}

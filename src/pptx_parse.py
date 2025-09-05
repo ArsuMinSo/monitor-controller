@@ -238,11 +238,11 @@ def format_slide_html(content_parts, images):
             for line in lines:
                 # Check for list indicators (remove HTML tags first for detection)
                 plain_line = re.sub(r'<[^>]+>', '', line)
-                if (plain_line.startswith(('•', '-', '*', '', '')) or 
+                if (plain_line.startswith(('', '-', '*', '', '')) or 
                     any(plain_line.startswith(f'{i}.') for i in range(1, 20)) or
                     plain_line.startswith(tuple(f'{i})' for i in range(1, 20)))):
                     # Clean list marker but preserve formatting
-                    clean_line = re.sub(r'^(<[^>]*>)*[•\-*]?\s*\d*[.)]*\s*', '', line)
+                    clean_line = re.sub(r'^(<[^>]*>)*[\-*]?\s*\d*[.)]*\s*', '', line)
                     if clean_line:
                         list_items.append(f'<li>{clean_line}</li>')
                 else:
@@ -264,7 +264,7 @@ def format_slide_html(content_parts, images):
         if len(images) == 1:
             # Single image - center it
             img_src = f"/slideshows/{images[0]['filename']}"
-            img_html = f'<div align="center" style="margin: 15px 0; max-width: 100%; overflow: hidden;"><img src="{img_src}" style="max-width: 70%; max-height: 60vh; height: auto; width: auto; border-radius: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.15); object-fit: contain;" /></div>'
+            img_html = f'<div align="center" class="slide-image"><img src="{img_src}"/></div>'
             html_parts.append(img_html)
         elif len(images) == 2:
             # Two images - side by side

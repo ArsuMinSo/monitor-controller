@@ -174,6 +174,19 @@ class WebSocketManager:
                 "playing": self.current_state["playing"]
             }))
             
+            # Send slideshows list to new client
+            slideshows_message = {
+                "type": "slideshows_update",
+                "slideshows": self.current_state["slideshows"]
+            }
+            
+            # Debug: Log what we're sending
+            self.logger.info(f"Sending {len(self.current_state['slideshows'])} slideshows to new client")
+            for i, slideshow in enumerate(self.current_state["slideshows"]):
+                self.logger.info(f"  Slideshow {i+1}: {slideshow.get('name', 'Unknown')} (ID: {slideshow.get('id', 'Unknown')})")
+            
+            await websocket.send(json.dumps(slideshows_message))
+            
             async for message in websocket:
                 try:
                     # Update last activity time

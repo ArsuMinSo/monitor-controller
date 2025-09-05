@@ -138,9 +138,7 @@
                 });
                 
                 const images = container.querySelectorAll('img');
-                images.forEach(img => {
-                    img.classList.add('slide-image');
-                });
+                images.forEach(img => {img.classList.add('slide-image');});
 
                 // Get slide duration - handle both editor and markdown formats
                 this.slideDuration = slide.duration || // Editor format
