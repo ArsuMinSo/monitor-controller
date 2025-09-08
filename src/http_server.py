@@ -29,18 +29,20 @@ class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         websocket_manager: Instance of WebSocketManager for real-time updates
     """
     
-    def __init__(self, *args, slideshow_manager=None, websocket_manager=None, **kwargs):
+    def __init__(self, *args, slideshow_manager=None, websocket_manager=None, queue_manager=None, **kwargs):
         """
         Initialize the HTTP request handler.
         
         Args:
             slideshow_manager: SlideShowManager instance for slideshow operations
             websocket_manager: WebSocketManager instance for real-time communication
+            queue_manager: PresentationQueueManager instance for queue operations
             *args: Positional arguments passed to parent class
             **kwargs: Keyword arguments passed to parent class
         """
         self.slideshow_manager = slideshow_manager
         self.websocket_manager = websocket_manager
+        self.queue_manager = queue_manager
         self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
         super().__init__(*args, **kwargs)
 
@@ -95,6 +97,15 @@ class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         - /api/load_slideshow: Load specific slideshow
         - /api/delete_slideshow: Delete slideshow
         - /api/upload_pptx: Upload and convert PowerPoint files
+        - /api/queue: Queue management operations
+        - /api/queue/add: Add slideshow to queue
+        - /api/queue/remove: Remove slideshow from queue
+        - /api/queue/start: Start queue playback
+        - /api/queue/stop: Stop queue playback
+        - /api/queue/next: Advance to next slideshow
+        - /api/queue/previous: Go to previous slideshow
+        - /api/queue/toggle_loop: Toggle loop mode
+        - /api/queue/reorder: Reorder queue items
         
         Handles exceptions and returns appropriate HTTP error codes.
         """
@@ -111,6 +122,10 @@ class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                 self.handle_delete_slideshow()
             elif self.path == '/api/upload_pptx':
                 self.handle_upload_pptx()
+            elif self.path == '/api/queue':
+                self.handle_queue_request()
+            elif self.path.startswith('/api/queue/'):
+                self.handle_queue_action()
             else:
                 self.send_error(404, "API endpoint not found")
         except Exception as e:
@@ -444,7 +459,294 @@ class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             print(f"Error serving slideshow file {self.path}: {e}")
             self.send_error(500, f"Error serving file: {e}")
 
-def create_http_handler(slideshow_manager, websocket_manager):
+    def handle_queue_request(self):
+        """
+        Handle GET /api/queue endpoint.
+        
+        Returns current queue state including queue items, current position,
+        playback status, and loop settings.
+        
+        Response:
+            200: JSON object with complete queue state
+            500: Internal server error
+        """
+        try:
+            queue_state = self.queue_manager.get_queue_state()
+            
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+            self.wfile.write(json.dumps(queue_state).encode())
+            
+        except Exception as e:
+            self.logger.error(f"Error getting queue state: {e}")
+            self.send_error(500, f"Queue error: {e}")
+
+    def handle_queue_action(self):
+        """
+        Handle queue action endpoints like /api/queue/add, /api/queue/remove, etc.
+        
+        Routes specific queue actions to appropriate methods based on URL path.
+        Supports both GET and POST methods depending on the action.
+        
+        Endpoints:
+            - POST /api/queue/add: Add slideshow to queue
+            - POST /api/queue/remove: Remove slideshow from queue
+            - POST /api/queue/start: Start queue playback
+            - POST /api/queue/stop: Stop queue playback
+            - POST /api/queue/next: Advance to next slideshow
+            - POST /api/queue/previous: Go to previous slideshow
+            - POST /api/queue/toggle_loop: Toggle loop mode
+            - POST /api/queue/reorder: Reorder queue items
+        """
+        try:
+            action = self.path.split('/')[-1]  # Get last part of path
+            
+            if action == 'add':
+                self.handle_queue_add()
+            elif action == 'remove':
+                self.handle_queue_remove()
+            elif action == 'start':
+                self.handle_queue_start()
+            elif action == 'stop':
+                self.handle_queue_stop()
+            elif action == 'next':
+                self.handle_queue_next()
+            elif action == 'previous':
+                self.handle_queue_previous()
+            elif action == 'toggle_loop':
+                self.handle_queue_toggle_loop()
+            elif action == 'reorder':
+                self.handle_queue_reorder()
+            else:
+                self.send_error(404, f"Queue action '{action}' not found")
+                
+        except Exception as e:
+            self.logger.error(f"Error handling queue action: {e}")
+            self.send_error(500, f"Queue action error: {e}")
+
+    def handle_queue_add(self):
+        """Add slideshow to queue via POST /api/queue/add"""
+        try:
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            data = json.loads(post_data.decode('utf-8'))
+            
+            slideshow_id = data.get('slideshow_id')
+            if not slideshow_id:
+                self.send_error(400, "Missing slideshow_id")
+                return
+            
+            success = self.queue_manager.add_to_queue(slideshow_id)
+            result = {"success": success, "message": f"Slideshow {'added to' if success else 'already in'} queue"}
+            
+            # Broadcast updated queue state
+            if success:
+                self.websocket_manager.broadcast_queue_state_sync(self.queue_manager.get_queue_state())
+            
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+            self.wfile.write(json.dumps(result).encode())
+            
+        except Exception as e:
+            self.logger.error(f"Error adding to queue: {e}")
+            self.send_error(500, f"Add to queue failed: {e}")
+
+    def handle_queue_remove(self):
+        """Remove slideshow from queue via POST /api/queue/remove"""
+        try:
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            data = json.loads(post_data.decode('utf-8'))
+            
+            slideshow_id = data.get('slideshow_id')
+            if not slideshow_id:
+                self.send_error(400, "Missing slideshow_id")
+                return
+            
+            success = self.queue_manager.remove_from_queue(slideshow_id)
+            result = {"success": success, "message": f"Slideshow {'removed from' if success else 'not found in'} queue"}
+            
+            # Broadcast updated queue state
+            if success:
+                self.websocket_manager.broadcast_queue_state_sync(self.queue_manager.get_queue_state())
+            
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+            self.wfile.write(json.dumps(result).encode())
+            
+        except Exception as e:
+            self.logger.error(f"Error removing from queue: {e}")
+            self.send_error(500, f"Remove from queue failed: {e}")
+
+    def handle_queue_start(self):
+        """Start queue playback via POST /api/queue/start"""
+        try:
+            current_slideshow = self.queue_manager.start_queue()
+            result = {
+                "success": current_slideshow is not None,
+                "current_slideshow": current_slideshow,
+                "message": "Queue started" if current_slideshow else "Queue is empty"
+            }
+            
+            # Broadcast updated queue state and switch to slideshow if available
+            self.websocket_manager.broadcast_queue_state_sync(self.queue_manager.get_queue_state())
+            if current_slideshow:
+                # Load and switch to the first slideshow in queue
+                slideshow_data = self.slideshow_manager.load_slideshow_by_id(current_slideshow)
+                if slideshow_data:
+                    self.websocket_manager.current_slideshow = slideshow_data
+                    self.websocket_manager.current_slide_index = 0
+                    self.websocket_manager.broadcast_state()
+            
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+            self.wfile.write(json.dumps(result).encode())
+            
+        except Exception as e:
+            self.logger.error(f"Error starting queue: {e}")
+            self.send_error(500, f"Start queue failed: {e}")
+
+    def handle_queue_stop(self):
+        """Stop queue playback via POST /api/queue/stop"""
+        try:
+            self.queue_manager.stop_queue()
+            result = {"success": True, "message": "Queue stopped"}
+            
+            # Broadcast updated queue state
+            self.websocket_manager.broadcast_queue_state_sync(self.queue_manager.get_queue_state())
+            
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+            self.wfile.write(json.dumps(result).encode())
+            
+        except Exception as e:
+            self.logger.error(f"Error stopping queue: {e}")
+            self.send_error(500, f"Stop queue failed: {e}")
+
+    def handle_queue_next(self):
+        """Advance to next slideshow via POST /api/queue/next"""
+        try:
+            next_slideshow = self.queue_manager.next_slideshow()
+            result = {
+                "success": next_slideshow is not None,
+                "current_slideshow": next_slideshow,
+                "message": "Advanced to next slideshow" if next_slideshow else "End of queue reached"
+            }
+            
+            # Broadcast updated queue state and switch to slideshow if available
+            self.websocket_manager.broadcast_queue_state_sync(self.queue_manager.get_queue_state())
+            if next_slideshow:
+                slideshow_data = self.slideshow_manager.load_slideshow_by_id(next_slideshow)
+                if slideshow_data:
+                    self.websocket_manager.current_slideshow = slideshow_data
+                    self.websocket_manager.current_slide_index = 0
+                    self.websocket_manager.broadcast_state()
+            
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+            self.wfile.write(json.dumps(result).encode())
+            
+        except Exception as e:
+            self.logger.error(f"Error advancing queue: {e}")
+            self.send_error(500, f"Queue next failed: {e}")
+
+    def handle_queue_previous(self):
+        """Go to previous slideshow via POST /api/queue/previous"""
+        try:
+            previous_slideshow = self.queue_manager.previous_slideshow()
+            result = {
+                "success": previous_slideshow is not None,
+                "current_slideshow": previous_slideshow,
+                "message": "Went to previous slideshow" if previous_slideshow else "At start of queue"
+            }
+            
+            # Broadcast updated queue state and switch to slideshow if available
+            self.websocket_manager.broadcast_queue_state_sync(self.queue_manager.get_queue_state())
+            if previous_slideshow:
+                slideshow_data = self.slideshow_manager.load_slideshow_by_id(previous_slideshow)
+                if slideshow_data:
+                    self.websocket_manager.current_slideshow = slideshow_data
+                    self.websocket_manager.current_slide_index = 0
+                    self.websocket_manager.broadcast_state()
+            
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+            self.wfile.write(json.dumps(result).encode())
+            
+        except Exception as e:
+            self.logger.error(f"Error going to previous: {e}")
+            self.send_error(500, f"Queue previous failed: {e}")
+
+    def handle_queue_toggle_loop(self):
+        """Toggle queue loop mode via POST /api/queue/toggle_loop"""
+        try:
+            loop_enabled = self.queue_manager.toggle_loop()
+            result = {
+                "success": True,
+                "loop_enabled": loop_enabled,
+                "message": f"Loop {'enabled' if loop_enabled else 'disabled'}"
+            }
+            
+            # Broadcast updated queue state
+            self.websocket_manager.broadcast_queue_state_sync(self.queue_manager.get_queue_state())
+            
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+            self.wfile.write(json.dumps(result).encode())
+            
+        except Exception as e:
+            self.logger.error(f"Error toggling loop: {e}")
+            self.send_error(500, f"Toggle loop failed: {e}")
+
+    def handle_queue_reorder(self):
+        """Reorder queue via POST /api/queue/reorder"""
+        try:
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            data = json.loads(post_data.decode('utf-8'))
+            
+            new_order = data.get('queue_order')
+            if not new_order or not isinstance(new_order, list):
+                self.send_error(400, "Missing or invalid queue_order (must be array)")
+                return
+            
+            success = self.queue_manager.reorder_queue(new_order)
+            result = {
+                "success": success,
+                "message": "Queue reordered successfully" if success else "Invalid reorder request"
+            }
+            
+            # Broadcast updated queue state
+            if success:
+                self.websocket_manager.broadcast_queue_state_sync(self.queue_manager.get_queue_state())
+            
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+            self.wfile.write(json.dumps(result).encode())
+            
+        except Exception as e:
+            self.logger.error(f"Error reordering queue: {e}")
+            self.send_error(500, f"Reorder queue failed: {e}")
+
+def create_http_handler(slideshow_manager, websocket_manager, queue_manager):
     """
     Create HTTP handler factory with dependency injection.
     
@@ -454,17 +756,18 @@ def create_http_handler(slideshow_manager, websocket_manager):
     Args:
         slideshow_manager: SlideShowManager instance for slideshow operations
         websocket_manager: WebSocketManager instance for real-time communication
+        queue_manager: PresentationQueueManager instance for queue operations
         
     Returns:
         Handler factory function that creates configured request handlers
     """
     def handler(*args, **kwargs):
         return CustomHTTPRequestHandler(*args, slideshow_manager=slideshow_manager, 
-                                      websocket_manager=websocket_manager, **kwargs)
+                                      websocket_manager=websocket_manager, queue_manager=queue_manager, **kwargs)
     return handler
 
 
-def start_http_server(port=50000, slideshow_manager=None, websocket_manager=None):
+def start_http_server(port=50000, slideshow_manager=None, websocket_manager=None, queue_manager=None):
     """
     Start the HTTP server on specified port.
     
@@ -475,11 +778,12 @@ def start_http_server(port=50000, slideshow_manager=None, websocket_manager=None
         port (int): Port number to listen on (default: 50000)
         slideshow_manager: SlideShowManager instance for slideshow operations
         websocket_manager: WebSocketManager instance for real-time communication
+        queue_manager: PresentationQueueManager instance for queue operations
         
     Note:
         This function blocks and runs the server indefinitely until interrupted.
     """
-    handler = create_http_handler(slideshow_manager, websocket_manager)
+    handler = create_http_handler(slideshow_manager, websocket_manager, queue_manager)
     
     with socketserver.TCPServer(("", port), handler) as httpd:
         print(f"HTTP server running on port {port}")

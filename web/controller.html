@@ -44,7 +44,11 @@
                 </button>
             </div>
         </div>
- 
+
+        <!-- Main content layout -->
+        <div class="main-layout">
+            <!-- Left side - Main content -->
+            <div class="main-content">
         <div class="section">
             <h2>Current Status</h2>
             <div class="status">
@@ -121,6 +125,67 @@
             <a href="viewer.html" target="_blank">Open Viewer</a>
             <a href="editor.html" target="_blank">Open Editor</a>
         </div>
+            </div>
+
+            <!-- Right sidebar - Queue controls -->
+            <div class="sidebar">
+                <div class="queue-section">
+                    <h2>Presentation Queue</h2>
+                    
+                    <!-- Queue status -->
+                    <div class="queue-status">
+                        <div class="queue-status-item">
+                            <span class="queue-status-label">Status:</span>
+                            <span class="queue-status-value" id="queueStatus">Stopped</span>
+                        </div>
+                        <div class="queue-status-item">
+                            <span class="queue-status-label">Loop:</span>
+                            <span class="queue-status-value" id="queueLoop">Disabled</span>
+                        </div>
+                        <div class="queue-status-item">
+                            <span class="queue-status-label">Position:</span>
+                            <span class="queue-status-value" id="queuePosition">0 / 0</span>
+                        </div>
+                    </div>
+
+                    <!-- Queue controls -->
+                    <div class="queue-controls">
+                        <div class="queue-control-row">
+                            <button class="btn btn-success queue-btn" onclick="startQueue()" id="startQueueBtn">
+                                <img src="icons/play.svg" class="icon" alt="Start">Start Queue
+                            </button>
+                            <button class="btn btn-secondary queue-btn" onclick="stopQueue()" id="stopQueueBtn">
+                                <img src="icons/stop.svg" class="icon" alt="Stop">Stop Queue
+                            </button>
+                        </div>
+                        <div class="queue-control-row">
+                            <button class="btn btn-primary queue-btn" onclick="previousSlideshow()" id="prevQueueBtn">
+                                <img src="icons/previous.svg" class="icon" alt="Previous">Previous
+                            </button>
+                            <button class="btn btn-primary queue-btn" onclick="nextSlideshow()" id="nextQueueBtn">
+                                <img src="icons/next.svg" class="icon" alt="Next">Next
+                            </button>
+                        </div>
+                        <div class="queue-control-row">
+                            <button class="btn btn-secondary queue-btn" onclick="toggleLoop()" id="toggleLoopBtn">
+                                <img src="icons/refresh.svg" class="icon" alt="Loop">Toggle Loop
+                            </button>
+                            <button class="btn btn-danger queue-btn" onclick="clearQueue()" id="clearQueueBtn">
+                                <img src="icons/delete.svg" class="icon" alt="Clear">Clear Queue
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Queue list -->
+                    <div class="queue-list-container">
+                        <h3>Queue Items <span id="queueCount">(0)</span></h3>
+                        <div class="queue-list" id="queueList">
+                            <div class="queue-empty">No items in queue</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -187,6 +252,190 @@
             }
         }
 
+        // Queue Management Functions
+        async function startQueue() {
+            try {
+                console.log('Starting queue...');
+                const response = await fetch('/api/queue/start', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const result = await response.json();
+                console.log('Start queue response:', result);
+                if (result.success) {
+                    console.log('Queue started:', result.current_slideshow);
+                    // WebSocket will handle UI update automatically
+                } else {
+                    console.warn('Failed to start queue:', result.message);
+                }
+            } catch (error) {
+                console.error('Error starting queue:', error);
+            }
+        }
+
+        async function stopQueue() {
+            try {
+                const response = await fetch('/api/queue/stop', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const result = await response.json();
+                if (result.success) {
+                    console.log('Queue stopped');
+                    // WebSocket will handle UI update automatically
+                } else {
+                    console.warn('Failed to stop queue:', result.message);
+                }
+            } catch (error) {
+                console.error('Error stopping queue:', error);
+            }
+        }
+
+        async function nextSlideshow() {
+            try {
+                const response = await fetch('/api/queue/next', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const result = await response.json();
+                if (result.success) {
+                    console.log('Advanced to next slideshow:', result.current_slideshow);
+                    // WebSocket will handle UI update automatically
+                } else {
+                    console.warn('Failed to advance queue:', result.message);
+                }
+            } catch (error) {
+                console.error('Error advancing queue:', error);
+            }
+        }
+
+        async function previousSlideshow() {
+            try {
+                const response = await fetch('/api/queue/previous', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const result = await response.json();
+                if (result.success) {
+                    console.log('Went to previous slideshow:', result.current_slideshow);
+                    // WebSocket will handle UI update automatically
+                } else {
+                    console.warn('Failed to go to previous:', result.message);
+                }
+            } catch (error) {
+                console.error('Error going to previous:', error);
+            }
+        }
+
+        async function toggleLoop() {
+            try {
+                const response = await fetch('/api/queue/toggle_loop', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const result = await response.json();
+                if (result.success) {
+                    console.log('Loop toggled:', result.loop_enabled ? 'enabled' : 'disabled');
+                    // WebSocket will handle UI update automatically
+                } else {
+                    console.warn('Failed to toggle loop:', result.message);
+                }
+            } catch (error) {
+                console.error('Error toggling loop:', error);
+            }
+        }
+
+        async function clearQueue() {
+            if (!confirm('Are you sure you want to clear the entire queue?')) {
+                return;
+            }
+            
+            try {
+                // Get current queue state first
+                const queueResponse = await fetch('/api/queue');
+                const queueState = await queueResponse.json();
+                
+                // Remove each item individually (since there's no clear endpoint)
+                for (const slideshowId of queueState.queue) {
+                    await removeFromQueue(slideshowId);
+                }
+                
+                console.log('Queue cleared');
+                // WebSocket will handle UI update automatically
+            } catch (error) {
+                console.error('Error clearing queue:', error);
+            }
+        }
+
+        async function addToQueue(slideshowId) {
+            try {
+                console.log('Adding to queue:', slideshowId);
+                const response = await fetch('/api/queue/add', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ slideshow_id: slideshowId })
+                });
+                console.log('Add to queue response status:', response.status);
+                const result = await response.json();
+                console.log('Add to queue result:', result);
+                if (result.success) {
+                    console.log('Added to queue:', slideshowId);
+                    // WebSocket will handle UI update automatically
+                } else {
+                    console.warn('Failed to add to queue:', result.message);
+                }
+                return result.success;
+            } catch (error) {
+                console.error('Error adding to queue:', error);
+                return false;
+            }
+        }
+
+        async function removeFromQueue(slideshowId) {
+            try {
+                const response = await fetch('/api/queue/remove', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ slideshow_id: slideshowId })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    console.log('Removed from queue:', slideshowId);
+                    // WebSocket will handle UI update automatically
+                } else {
+                    console.warn('Failed to remove from queue:', result.message);
+                }
+                return result.success;
+            } catch (error) {
+                console.error('Error removing from queue:', error);
+                return false;
+            }
+        }
+
+        async function refreshQueue() {
+            try {
+                console.log('Fetching queue state...');
+                const response = await fetch('/api/queue');
+                const queueState = await response.json();
+                
+                console.log('Queue API response:', queueState);
+                
+                // Update the queue state in the controller
+                if (window.controller) {
+                    console.log('Updating controller queue state...');
+                    window.controller.currentState.queue = queueState;
+                    window.controller.updateQueueUI();
+                    console.log('Queue UI updated');
+                } else {
+                    console.warn('Controller not available yet');
+                }
+                
+                console.log('Queue refreshed:', queueState);
+            } catch (error) {
+                console.error('Error refreshing queue:', error);
+            }
+        }
+
         class SlideshowController {
             constructor() {
                 this.ws = null;
@@ -194,7 +443,15 @@
                     slideshows: [],
                     current_slideshow: null,
                     current_slide: 0,
-                    playing: false
+                    playing: false,
+                    queue: {
+                        queue: [],
+                        current_index: 0,
+                        current_slideshow: null,
+                        is_playing: false,
+                        loop_enabled: false,
+                        queue_length: 0
+                    }
                 };
                 
                 // Timer properties
@@ -215,6 +472,9 @@
                     this.ws.onopen = () => {
                         this.updateConnectionStatus(true);
                         this.refreshSlideshows();
+                        
+                        // Initial queue state will be sent automatically by WebSocket
+                        console.log('WebSocket connected, waiting for initial state...');
                     };
 
                     this.ws.onmessage = (event) => {
@@ -224,6 +484,13 @@
                             // Update the slideshows list
                             this.currentState.slideshows = data.slideshows;
                             this.updateUI();
+                            return;
+                        }
+                        
+                        if (data.type === 'queue_update') {
+                            // Update the queue state
+                            this.currentState.queue = data.queue;
+                            this.updateQueueUI();
                             return;
                         }
                         
@@ -272,6 +539,7 @@
             updateUI() {
                 this.updateCurrentStatus();
                 this.updateSlideshowList();
+                this.updateQueueUI();
             }
 
             updateCurrentStatus() {
@@ -346,6 +614,9 @@
                                 <button class="btn btn-danger btn-small remove-btn" data-slideshow-id="${slideshow.id}" data-slideshow-name="${slideshow.name.replace(/"/g, '&quot;')}" title="Delete this slideshow">
                                     <img src="icons/delete.svg" class="icon" alt="Remove">
                                 </button>
+                                <button class="btn btn-success btn-smal load-play-btn" data-slideshow-id="${slideshow.id}" title="Add to presentation queue">
+                                    <img src="icons/plus.svg" class="icon" alt="Add">
+                                </button>
                             </div>
                         </div>
                     `;
@@ -388,10 +659,155 @@
                     });
                 });
                 
-                    document.querySelectorAll('.load-play-btn').length, 'load buttons,', 
-                    document.querySelectorAll('.edit-btn').length, 'edit buttons, and',
-                    document.querySelectorAll('.remove-btn').length, 'remove buttons';
-            };
+                // Add to Queue buttons
+                document.querySelectorAll('.add-to-queue-btn').forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const slideshowId = e.target.closest('.add-to-queue-btn').getAttribute('data-slideshow-id');
+                        addToQueue(slideshowId);
+                    });
+                });
+            }
+
+            updateQueueUI() {
+                // Update queue status
+                const queueStatusEl = document.getElementById('queueStatus');
+                const queueLoopEl = document.getElementById('queueLoop');
+                const queuePositionEl = document.getElementById('queuePosition');
+                const queueCountEl = document.getElementById('queueCount');
+                const queueListEl = document.getElementById('queueList');
+
+                if (!this.currentState.queue) return;
+
+                const queue = this.currentState.queue;
+                
+                // Update status indicators
+                queueStatusEl.textContent = queue.is_playing ? 'Playing' : 'Stopped';
+                queueLoopEl.textContent = queue.loop_enabled ? 'Enabled' : 'Disabled';
+                queuePositionEl.textContent = `${queue.current_index + 1} / ${queue.queue_length}`;
+                queueCountEl.textContent = `(${queue.queue_length})`;
+
+                // Update queue list
+                if (queue.queue_length === 0) {
+                    queueListEl.innerHTML = '<div class="queue-empty">No items in queue</div>';
+                } else {
+                    queueListEl.innerHTML = '';
+                    
+                    queue.queue.forEach((slideshowId, index) => {
+                        const isActive = index === queue.current_index;
+                        const slideshow = this.currentState.slideshows.find(s => s.id === slideshowId);
+                        const displayName = slideshow ? slideshow.name : slideshowId;
+                        
+                        const queueItem = document.createElement('div');
+                        queueItem.className = `queue-item${isActive ? ' active' : ''}`;
+                        
+                        queueItem.innerHTML = `
+                            <div class="queue-item-info">
+                                <div class="queue-item-name">${displayName}</div>
+                                <div class="queue-item-position">Position: ${index + 1}</div>
+                            </div>
+                            <div class="queue-item-actions">
+                                <button class="queue-item-btn move-up-btn" data-slideshow-id="${slideshowId}" data-index="${index}" title="Move up" ${index === 0 ? 'disabled' : ''}>
+                                    <img src="icons/up.svg" class="icon" alt="Up">
+                                </button>
+                                <button class="queue-item-btn move-down-btn" data-slideshow-id="${slideshowId}" data-index="${index}" title="Move down" ${index === queue.queue.length - 1 ? 'disabled' : ''}>
+                                    <img src="icons/down.svg" class="icon" alt="Down">
+                                </button>
+                                <button class="queue-item-btn remove-from-queue-btn" data-slideshow-id="${slideshowId}" title="Remove from queue">
+                                    <img src="icons/delete.svg" class="icon" alt="Remove">
+                                </button>
+                            </div>
+                        `;
+                        
+                        queueListEl.appendChild(queueItem);
+                    });
+                    
+                    // Add event listeners for queue item actions
+                    this.attachQueueItemEventListeners();
+                }
+            }
+
+            attachQueueItemEventListeners() {
+                console.log('Attaching queue item event listeners...');
+                
+                // Remove from queue buttons
+                const removeButtons = document.querySelectorAll('.remove-from-queue-btn');
+                console.log('Found', removeButtons.length, 'remove buttons');
+                removeButtons.forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        console.log('Remove button clicked');
+                        const slideshowId = e.target.closest('.remove-from-queue-btn').getAttribute('data-slideshow-id');
+                        console.log('Removing slideshow:', slideshowId);
+                        removeFromQueue(slideshowId);
+                    });
+                });
+
+                // Move up buttons
+                const upButtons = document.querySelectorAll('.move-up-btn');
+                console.log('Found', upButtons.length, 'up buttons');
+                upButtons.forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        console.log('Move up button clicked');
+                        const slideshowId = e.target.closest('.move-up-btn').getAttribute('data-slideshow-id');
+                        const currentIndex = parseInt(e.target.closest('.move-up-btn').getAttribute('data-index'));
+                        console.log('Moving up:', slideshowId, 'from index', currentIndex);
+                        if (currentIndex > 0) {
+                            this.moveQueueItem(slideshowId, currentIndex - 1);
+                        }
+                    });
+                });
+
+                // Move down buttons
+                const downButtons = document.querySelectorAll('.move-down-btn');
+                console.log('Found', downButtons.length, 'down buttons');
+                downButtons.forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        console.log('Move down button clicked');
+                        const slideshowId = e.target.closest('.move-down-btn').getAttribute('data-slideshow-id');
+                        const currentIndex = parseInt(e.target.closest('.move-down-btn').getAttribute('data-index'));
+                        console.log('Moving down:', slideshowId, 'from index', currentIndex);
+                        this.moveQueueItem(slideshowId, currentIndex + 1);
+                    });
+                });
+            }
+
+            async moveQueueItem(slideshowId, newPosition) {
+                console.log('moveQueueItem called:', slideshowId, 'to position', newPosition);
+                console.log('Current queue state:', this.currentState.queue);
+                
+                // Create new queue order by moving the item
+                const newOrder = [...this.currentState.queue.queue];
+                console.log('Original order:', newOrder);
+                
+                const currentIndex = newOrder.indexOf(slideshowId);
+                console.log('Current index of', slideshowId, 'is', currentIndex);
+                
+                if (currentIndex !== -1) {
+                    newOrder.splice(currentIndex, 1);
+                    newOrder.splice(newPosition, 0, slideshowId);
+                    
+                    console.log('New order:', newOrder);
+                    console.log('Sending reorder request with:', { queue_order: newOrder });
+                    
+                    try {
+                        const response = await fetch('/api/queue/reorder', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ queue_order: newOrder })
+                        });
+                        const result = await response.json();
+                        console.log('Reorder response:', result);
+                        if (!result.success) {
+                            console.warn('Failed to reorder queue:', result.message);
+                        }
+                    } catch (error) {
+                        console.error('Error reordering queue:', error);
+                    }
+                } else {
+                    console.error('Slideshow not found in queue:', slideshowId);
+                }
+            }
 
             sendCommand(command, params = {}) {
                 if (this.ws && this.ws.readyState === WebSocket.OPEN) {

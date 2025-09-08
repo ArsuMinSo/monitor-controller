@@ -998,3 +998,285 @@ td, th {
         height: 60px;
     }
 }
+
+/* Main Layout with Sidebar */
+.main-layout {
+    display: flex;
+    gap: 2rem;
+    min-height: calc(100vh - 200px);
+}
+
+.main-content {
+    flex: 1;
+    min-width: 0; /* Prevent flex item from overflowing */
+}
+
+.sidebar {
+    width: 320px;
+    min-width: 320px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 0;
+    height: fit-content;
+    position: sticky;
+    top: 2rem;
+}
+
+/* Queue Section */
+.queue-section {
+    padding: 1.5rem;
+}
+
+.queue-section h2 {
+    margin: 0 0 1rem 0;
+    color: var(--primary-dark);
+    font-size: 1.3rem;
+    font-weight: 600;
+    border-bottom: 2px solid var(--border);
+    padding-bottom: 0.5rem;
+}
+
+.queue-section h3 {
+    margin: 1.5rem 0 1rem 0;
+    color: var(--text);
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+/* Queue Status */
+.queue-status {
+    background: var(--background);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.queue-status-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.queue-status-item:last-child {
+    margin-bottom: 0;
+}
+
+.queue-status-label {
+    font-weight: 500;
+    color: var(--text);
+}
+
+.queue-status-value {
+    font-weight: 600;
+    color: var(--primary);
+}
+
+/* Queue Controls */
+.queue-controls {
+    margin-bottom: 1.5rem;
+}
+
+.queue-control-row {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.queue-control-row:last-child {
+    margin-bottom: 0;
+}
+
+.queue-btn {
+    flex: 1;
+    padding: 0.6rem 0.8rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    border-radius: 6px;
+    transition: all 0.2s;
+}
+
+.queue-btn .icon {
+    width: 16px;
+    height: 16px;
+}
+
+.queue-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.queue-btn:active {
+    transform: translateY(0);
+}
+
+/* Queue List */
+.queue-list-container {
+    border-top: 1px solid var(--border);
+    padding-top: 1rem;
+}
+
+.queue-list {
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--background);
+}
+
+.queue-empty {
+    text-align: center;
+    padding: 2rem 1rem;
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+.queue-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.8rem 1rem;
+    border-bottom: 1px solid var(--border-light);
+    transition: background-color 0.2s;
+    cursor: pointer;
+}
+
+.queue-item:last-child {
+    border-bottom: none;
+}
+
+.queue-item:hover {
+    background: var(--surface);
+}
+
+.queue-item.active {
+    background: #eef2fa;
+    border-left: 4px solid var(--primary);
+    padding-left: calc(1rem - 4px);
+}
+
+.queue-item-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.queue-item-name {
+    font-weight: 500;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 0.2rem;
+}
+
+.queue-item-position {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.queue-item-actions {
+    display: flex;
+    gap: 0.3rem;
+    margin-left: 0.5rem;
+}
+
+.queue-item-btn {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0.3rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.queue-item-btn:hover {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: white;
+}
+
+.queue-item-btn .icon {
+    width: 12px;
+    height: 12px;
+}
+
+/* Add to Queue Button */
+.add-to-queue-btn {
+    background: var(--success);
+    border: 1px solid var(--success);
+    color: white;
+    padding: 0.4rem 0.6rem;
+    font-size: 0.8rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    margin-left: 0.5rem;
+}
+
+.add-to-queue-btn:hover {
+    background: #28a745;
+    border-color: #28a745;
+    transform: translateY(-1px);
+}
+
+.add-to-queue-btn .icon {
+    width: 14px;
+    height: 14px;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .main-layout {
+        flex-direction: column;
+    }
+    
+    .sidebar {
+        width: 100%;
+        min-width: auto;
+        position: static;
+    }
+    
+    .queue-control-row {
+        flex-wrap: wrap;
+    }
+    
+    .queue-btn {
+        min-width: 120px;
+    }
+}
+
+@media (max-width: 768px) {
+    .main-layout {
+        gap: 1rem;
+    }
+    
+    .sidebar {
+        margin-top: 1rem;
+    }
+    
+    .queue-section {
+        padding: 1rem;
+    }
+    
+    .queue-control-row {
+        flex-direction: column;
+        gap: 0.3rem;
+    }
+    
+    .queue-btn {
+        width: 100%;
+        min-width: auto;
+    }
+}

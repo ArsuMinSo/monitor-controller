@@ -295,6 +295,7 @@ try:
     from src.websocket_manager import WebSocketManager
     from src.http_server import start_http_server
     from src.utils import get_local_ip
+    from src.presentation_queue import PresentationQueueManager
     logger = logging.getLogger(__name__)
     logger.debug("All core modules imported successfully")
 except NotImplementedError as e:
@@ -357,6 +358,7 @@ async def main():
         logger.info("Initializing system managers...")
         slideshow_manager = SlideShowManager()
         websocket_manager = WebSocketManager()
+        queue_manager = PresentationQueueManager()
         logger.debug("Managers initialized successfully")
         
         # Load initial slideshows
@@ -365,6 +367,11 @@ async def main():
         websocket_manager.update_slideshows_list(slideshows)
         logger.info(f"Found {len(slideshows)} slideshows")
         print(f"Found {len(slideshows)} slideshows")
+        
+        # Initialize queue state in websocket manager
+        initial_queue_state = queue_manager.get_queue_state()
+        websocket_manager.current_state["queue"] = initial_queue_state
+        logger.info(f"Initialized queue state with {initial_queue_state.get('queue_length', 0)} items")
         
         # Get local IP address
         logger.debug("Getting local IP address...")
@@ -375,7 +382,7 @@ async def main():
         logger.info("Starting HTTP server on port 8080...")
         http_thread = threading.Thread(
             target=start_http_server, 
-            args=(8080, slideshow_manager, websocket_manager),
+            args=(8080, slideshow_manager, websocket_manager, queue_manager),
             daemon=True,
             name="HTTPServer"
         )

@@ -45,7 +45,15 @@ class WebSocketManager:
             "current_slideshow": None,
             "current_slide": 0,
             "slideshows": [],
-            "playing": False
+            "playing": False,
+            "queue": {
+                "queue": [],
+                "current_index": 0,
+                "current_slideshow": None,
+                "is_playing": False,
+                "loop_enabled": False,
+                "queue_length": 0
+            }
         }
         self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
         self.logger.debug("WebSocketManager initialized")
@@ -118,6 +126,77 @@ class WebSocketManager:
                 print(f"Error broadcasting slideshows to client: {e}")
                 self.clients.discard(client)
 
+    async def broadcast_queue_state(self, queue_state):
+        """
+        Broadcast updated queue state to all connected clients.
+        
+        Sends the current queue state to all connected clients.
+        Used when queue operations occur to keep all interfaces synchronized.
+        
+        Args:
+            queue_state (dict): Queue state from PresentationQueueManager
+            
+        Note:
+            Only broadcasts if there are connected clients.
+            Handles connection errors by removing failed connections.
+        """
+        if not self.clients:
+            return
+        
+        # Update local state
+        self.current_state["queue"] = queue_state
+        
+        message = json.dumps({
+            "type": "queue_update",
+            "queue": queue_state
+        })
+        
+        # Create a copy of clients to avoid issues if set changes during iteration
+        clients_copy = self.clients.copy()
+        
+        for client in clients_copy:
+            try:
+                await client.send(message)
+            except websockets.exceptions.ConnectionClosed:
+                self.clients.discard(client)
+            except Exception as e:
+                print(f"Error broadcasting queue state to client: {e}")
+                self.clients.discard(client)
+        
+        self.logger.debug(f"Broadcasted queue state to {len(self.clients)} clients")
+
+    def broadcast_queue_state_sync(self, queue_state):
+        """
+        Synchronous wrapper for broadcast_queue_state.
+        
+        Uses a simpler approach to broadcast queue updates reliably.
+        
+        Args:
+            queue_state (dict): Queue state from PresentationQueueManager
+        """
+        # Update local state immediately
+        self.current_state["queue"] = queue_state
+        
+        # Simple thread-based approach
+        import threading
+        
+        def broadcast_in_thread():
+            try:
+                # Create a new event loop for this thread
+                import asyncio
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
+                
+                # Run the broadcast
+                loop.run_until_complete(self.broadcast_queue_state(queue_state))
+                loop.close()
+            except Exception as e:
+                self.logger.error(f"Error broadcasting queue state: {e}")
+                print(f"Error broadcasting queue state: {e}")
+        
+        # Start the broadcast in a separate thread
+        thread = threading.Thread(target=broadcast_in_thread, daemon=True)
+        thread.start()
 
     async def handle_client(self, websocket):
         """
@@ -186,6 +265,15 @@ class WebSocketManager:
                 self.logger.info(f"  Slideshow {i+1}: {slideshow.get('name', 'Unknown')} (ID: {slideshow.get('id', 'Unknown')})")
             
             await websocket.send(json.dumps(slideshows_message))
+            
+            # Send current queue state to new client
+            queue_message = {
+                "type": "queue_update",
+                "queue": self.current_state["queue"]
+            }
+            
+            self.logger.info(f"Sending queue state to new client: {self.current_state['queue']}")
+            await websocket.send(json.dumps(queue_message))
             
             async for message in websocket:
                 try:
