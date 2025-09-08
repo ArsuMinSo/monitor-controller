@@ -600,9 +600,25 @@ class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                 # Load and switch to the first slideshow in queue
                 slideshow_data = self.slideshow_manager.load_slideshow_by_id(current_slideshow)
                 if slideshow_data:
-                    self.websocket_manager.current_slideshow = slideshow_data
-                    self.websocket_manager.current_slide_index = 0
-                    self.websocket_manager.broadcast_state()
+                    # Update WebSocket manager state
+                    self.websocket_manager.current_state["current_slideshow"] = slideshow_data
+                    self.websocket_manager.current_state["current_slide"] = 0
+                    self.websocket_manager.current_state["playing"] = True
+                    
+                    # Create a task to broadcast the state in the WebSocket event loop
+                    import threading
+                    def broadcast_state():
+                        try:
+                            import asyncio
+                            loop = asyncio.new_event_loop()
+                            asyncio.set_event_loop(loop)
+                            loop.run_until_complete(self.websocket_manager.broadcast_state())
+                            loop.close()
+                        except Exception as e:
+                            self.logger.error(f"Error broadcasting state: {e}")
+                    
+                    thread = threading.Thread(target=broadcast_state, daemon=True)
+                    thread.start()
             
             self.send_response(200)
             self.send_header('Content-type', 'application/json')

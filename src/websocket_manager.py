@@ -32,15 +32,19 @@ class WebSocketManager:
             - playing: Playback status
     """
     
-    def __init__(self):
+    def __init__(self, queue_manager=None):
         """
         Initialize the WebSocketManager.
         
         Sets up empty client set and initial state with no active slideshow.
         Also initializes client information tracking for monitoring connected clients.
+        
+        Args:
+            queue_manager: Optional PresentationQueueManager instance for auto-advance
         """
         self.clients = set()
         self.client_info = {}  # Store client information with IP, connect time, etc.
+        self.queue_manager = queue_manager  # Store reference to queue manager
         self.current_state = {
             "current_slideshow": None,
             "current_slide": 0,
@@ -312,6 +316,75 @@ class WebSocketManager:
                 self.display_client_info()
 
 
+    async def auto_advance_queue(self):
+        """
+        Auto-advance to the next presentation in the queue.
+        
+        Called when the current presentation reaches its last slide and 
+        queue playback is active. Advances to the next slideshow in the queue
+        and starts playing it automatically.
+        """
+        try:
+            self.logger.info("=== AUTO_ADVANCE_QUEUE CALLED ===")
+            print("=== AUTO_ADVANCE_QUEUE CALLED ===")
+            
+            # Use the stored queue manager instance
+            if not self.queue_manager:
+                self.logger.warning("Queue manager not available for auto-advance")
+                print("Queue manager not available for auto-advance")
+                return
+            
+            print(f"Queue manager found: {self.queue_manager}")
+            
+            # Advance to next slideshow in queue
+            next_slideshow_id = self.queue_manager.next_slideshow()
+            print(f"Next slideshow ID: {next_slideshow_id}")
+            
+            if next_slideshow_id:
+                # Load the next slideshow
+                from .slideshow_manager import load_slideshow_by_id
+                next_slideshow = load_slideshow_by_id(next_slideshow_id, self.current_state["slideshows"])
+                
+                if next_slideshow:
+                    self.logger.info(f"Auto-advancing to next slideshow: {next_slideshow_id}")
+                    print(f"Auto-advancing to next slideshow: {next_slideshow_id}")
+                    
+                    # Update current slideshow state
+                    self.current_state["current_slideshow"] = next_slideshow
+                    self.logger.info(f"AUTO_ADVANCE: Setting current_slide to 0 (was {self.current_state['current_slide']})")
+                    print(f"AUTO_ADVANCE: Setting current_slide to 0 (was {self.current_state['current_slide']})")
+                    self.current_state["current_slide"] = 0
+                    self.current_state["playing"] = True
+                    
+                    # Update queue state
+                    queue_state = self.queue_manager.get_queue_state()
+                    self.current_state["queue"] = queue_state
+                    
+                    print(f"Updated state - slideshow: {next_slideshow.get('name', 'Unknown')}")
+                    print(f"Updated queue state: {queue_state}")
+                    
+                    # Broadcast both slideshow state and queue state
+                    await self.broadcast_state()
+                    await self.broadcast_queue_state(queue_state)
+                    
+                    self.logger.info(f"Successfully advanced to slideshow: {next_slideshow.get('name', next_slideshow_id)}")
+                    print(f"Successfully advanced to slideshow: {next_slideshow.get('name', next_slideshow_id)}")
+                else:
+                    self.logger.warning(f"Could not load next slideshow: {next_slideshow_id}")
+                    print(f"Could not load next slideshow: {next_slideshow_id}")
+            else:
+                # No more slideshows in queue
+                self.logger.info("Reached end of queue - stopping playback")
+                print("Reached end of queue - stopping playback")
+                self.current_state["playing"] = False
+                await self.broadcast_state()
+                
+        except Exception as e:
+            self.logger.error(f"Error during auto-advance: {e}")
+            print(f"Error during auto-advance: {e}")
+            import traceback
+            traceback.print_exc()
+
     async def handle_command(self, command, params):
         """
         Handle WebSocket commands from clients.
@@ -367,8 +440,38 @@ class WebSocketManager:
         elif command == "next_slide":
             if self.current_state["current_slideshow"]:
                 total_slides = len(self.current_state["current_slideshow"]["slides"])
-                self.current_state["current_slide"] = (self.current_state["current_slide"] + 1) % total_slides
-                await self.broadcast_state()
+                current_slide = self.current_state["current_slide"]
+                
+                self.logger.info(f"Next slide requested: current_slide={current_slide}, total_slides={total_slides}")
+                print(f"Next slide: current_slide={current_slide}, total_slides={total_slides}")
+                
+                # Check if we're at the last slide
+                if current_slide + 1 >= total_slides:
+                    # We're at the last slide - check if queue is playing
+                    queue_state = self.current_state.get("queue", {})
+                    is_queue_playing = queue_state.get("is_playing", False)
+                    
+                    self.logger.info(f"At last slide! Queue playing: {is_queue_playing}")
+                    print(f"At last slide! Queue playing: {is_queue_playing}")
+                    print(f"Queue state: {queue_state}")
+                    
+                    if is_queue_playing:
+                        # Auto-advance to next presentation in queue
+                        self.logger.info("Calling auto_advance_queue()")
+                        print("Calling auto_advance_queue()")
+                        await self.auto_advance_queue()
+                    else:
+                        # Just loop back to first slide (normal behavior)
+                        self.logger.info("Queue not playing, looping to first slide")
+                        print("Queue not playing, looping to first slide")
+                        self.current_state["current_slide"] = 0
+                        await self.broadcast_state()
+                else:
+                    # Normal slide advance
+                    self.logger.info(f"NORMAL_ADVANCE: Advancing from slide {current_slide} to {current_slide + 1}")
+                    print(f"NORMAL_ADVANCE: Advancing from slide {current_slide} to {current_slide + 1}")
+                    self.current_state["current_slide"] = current_slide + 1
+                    await self.broadcast_state()
         
         elif command == "prev_slide":
             if self.current_state["current_slideshow"]:

@@ -80,7 +80,7 @@ def setup_logging():
     
     # Console handler - INFO level for user feedback
     console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(logging.INFO)
+    console_handler.setLevel(logging.DEBUG)
     console_handler.setFormatter(console_formatter)
     logger.addHandler(console_handler)
     
@@ -313,6 +313,13 @@ except ImportError as e:
     print("Check that all source files exist in the 'src' directory")
     sys.exit(1)
 
+# Global queue manager instance
+_queue_manager = None
+
+def get_queue_manager():
+    """Get the global queue manager instance."""
+    return _queue_manager
+
 async def main():
     """
     Main application entry point and server coordinator.
@@ -357,8 +364,13 @@ async def main():
         # Initialize managers
         logger.info("Initializing system managers...")
         slideshow_manager = SlideShowManager()
-        websocket_manager = WebSocketManager()
         queue_manager = PresentationQueueManager()
+        websocket_manager = WebSocketManager(queue_manager)  # Pass queue manager
+        
+        # Set global queue manager for access from other modules
+        global _queue_manager
+        _queue_manager = queue_manager
+        
         logger.debug("Managers initialized successfully")
         
         # Load initial slideshows
@@ -372,6 +384,24 @@ async def main():
         initial_queue_state = queue_manager.get_queue_state()
         websocket_manager.current_state["queue"] = initial_queue_state
         logger.info(f"Initialized queue state with {initial_queue_state.get('queue_length', 0)} items")
+        
+        # If queue is already playing, sync slideshow state
+        if initial_queue_state.get("is_playing", False) and initial_queue_state.get("current_slideshow"):
+            current_slideshow_id = initial_queue_state.get("current_slideshow")
+            logger.info(f"Queue is playing - loading slideshow: {current_slideshow_id}")
+            
+            # Load the current slideshow
+            slideshow_data = slideshow_manager.load_slideshow_by_id(current_slideshow_id)
+            if slideshow_data:
+                websocket_manager.current_state["current_slideshow"] = slideshow_data
+                websocket_manager.current_state["current_slide"] = 0
+                websocket_manager.current_state["playing"] = True
+                logger.info(f"Synced WebSocket state with playing queue: {slideshow_data.get('name', 'Unknown')}")
+            else:
+                logger.warning(f"Could not load slideshow for playing queue: {current_slideshow_id}")
+                # Stop the queue if slideshow can't be loaded
+                queue_manager.stop_queue()
+                logger.info("Stopped queue due to missing slideshow")
         
         # Get local IP address
         logger.debug("Getting local IP address...")

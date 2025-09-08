@@ -458,6 +458,7 @@
                 this.slideStartTime = null;
                 this.slideDuration = 0;
                 this.timerInterval = null;
+                this.autoAdvanced = false; // Flag to prevent multiple auto-advances
                 
                 this.connectWebSocket();
                 this.startTimer();
@@ -506,7 +507,35 @@
                             // Reset timer if slide or slideshow changed
                             if (this.currentState.current_slide !== previousSlide || 
                                 this.currentState.current_slideshow?.id !== previousSlideshow) {
-                                this.slideStartTime = this.currentState.playing ? Date.now() : null;
+                                console.log('WebSocket slide change detected:', 
+                                    'previous slide:', previousSlide, 'slideshow:', previousSlideshow, 
+                                    'current slide:', this.currentState.current_slide, 'slideshow:', this.currentState.current_slideshow?.id);
+                                
+                                // IMMEDIATE reset of auto-advance flag to prevent race conditions
+                                this.autoAdvanced = false;
+                                this.slideStartTime = null; // Stop timer immediately
+                                
+                                // If slideshow changed, force complete reset with minimal delay
+                                if (this.currentState.current_slideshow?.id !== previousSlideshow) {
+                                    console.log('SLIDESHOW CHANGED: Complete timer reset with 100ms delay');
+                                    setTimeout(() => {
+                                        if (!this.autoAdvanced) { // Double-check flag hasn't been set again
+                                            this.slideStartTime = this.currentState.playing ? Date.now() : null;
+                                            this.updateSlideDuration();
+                                            console.log('Slideshow change: Timer reset completed at', new Date().toISOString());
+                                        }
+                                    }, 100); // Minimal delay for slideshow changes
+                                } else {
+                                    // Just slide changed - immediate reset
+                                    console.log('SLIDE CHANGED: Immediate timer reset');
+                                    setTimeout(() => {
+                                        if (!this.autoAdvanced) { // Double-check flag hasn't been set again
+                                            this.slideStartTime = this.currentState.playing ? Date.now() : null;
+                                            this.updateSlideDuration();
+                                            console.log('Slide change: Timer reset completed at', new Date().toISOString());
+                                        }
+                                    }, 50);
+                                }
                             }
                             
                             this.updateUI();
@@ -614,7 +643,7 @@
                                 <button class="btn btn-danger btn-small remove-btn" data-slideshow-id="${slideshow.id}" data-slideshow-name="${slideshow.name.replace(/"/g, '&quot;')}" title="Delete this slideshow">
                                     <img src="icons/delete.svg" class="icon" alt="Remove">
                                 </button>
-                                <button class="btn btn-success btn-smal load-play-btn" data-slideshow-id="${slideshow.id}" title="Add to presentation queue">
+                                <button class="add-to-queue-btn" data-slideshow-id="${slideshow.id}" title="Add to presentation queue">
                                     <img src="icons/plus.svg" class="icon" alt="Add">
                                 </button>
                             </div>
@@ -833,6 +862,7 @@
             }
 
             nextSlide() {
+                console.log('nextSlide() called from:', new Error().stack);
                 this.sendCommand('next_slide');
             }
 
@@ -856,6 +886,8 @@
                         
                         // Reset timer when slide changes
                         this.slideStartTime = this.currentState.playing ? Date.now() : null;
+                        console.log('updateSlideDuration: resetting autoAdvanced flag for slide', this.currentState.current_slide);
+                        this.autoAdvanced = false; // Reset auto-advance flag for new slide
                     }
                 }
             }
@@ -887,8 +919,39 @@
                 
                 if (remaining > 0) {
                     timerEl.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}.${centiseconds.toString().padStart(2, '0')}`;
+                    // Clear auto-advance flag when timer is actively counting down
+                    if (this.autoAdvanced && remaining > 100) { // Give 100ms buffer
+                        console.log('Timer counting down: clearing autoAdvanced flag (remaining:', remaining, 'ms)');
+                        this.autoAdvanced = false;
+                    }
                 } else {
                     timerEl.textContent = '0:00.00';
+                    
+                    // Auto-advance to next slide when timer reaches zero (with additional safety checks)
+                    if (this.currentState.playing && !this.autoAdvanced && this.slideStartTime) {
+                        console.log('Timer expired: AUTO-ADVANCE CHECK');
+                        console.log('- Current time:', new Date().toISOString());
+                        console.log('- Slide start time:', new Date(this.slideStartTime).toISOString());
+                        console.log('- Elapsed:', elapsed, 'ms, Duration:', this.slideDuration, 'ms');
+                        console.log('- Current slide:', this.currentState.current_slide);
+                        console.log('- Auto-advanced flag:', this.autoAdvanced);
+                        
+                        // Extra safety: check if enough time has actually passed
+                        if (elapsed >= this.slideDuration - 50) { // 50ms tolerance
+                            console.log('Timer expired: Setting autoAdvanced flag and calling nextSlide()');
+                            this.autoAdvanced = true;
+                            this.slideStartTime = null; // Stop timer immediately to prevent multiple triggers
+                            this.nextSlide();
+                        } else {
+                            console.log('Timer expired: BUT elapsed time insufficient, skipping auto-advance');
+                        }
+                    } else if (this.currentState.playing && this.autoAdvanced) {
+                        console.log('Timer expired: autoAdvanced flag already set - preventing duplicate call');
+                    } else if (this.currentState.playing && !this.slideStartTime) {
+                        console.log('Timer expired: no slideStartTime - timer was reset, skipping auto-advance');
+                    } else if (!this.currentState.playing) {
+                        console.log('Timer expired: not playing - skipping auto-advance');
+                    }
                 }
             }
         }

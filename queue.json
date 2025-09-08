@@ -1,10 +1,9 @@
 {
   "queue": [
     "marketing_campaign_editor",
-    "Default_Omnika_temp_editor",
-    "educational_interactive_editor"
+    "advanced_technical_editor"
   ],
-  "current_index": 0,
+  "current_index": 1,
   "is_playing": true,
   "loop_enabled": true
 }

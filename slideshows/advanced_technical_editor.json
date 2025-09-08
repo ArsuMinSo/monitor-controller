@@ -4,32 +4,32 @@
   "slides": [
     {
       "html": "<div style=\"text-align: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 2rem; border-radius: 10px;\"><h1 style=\"color: white; font-size: 2.5rem; margin-bottom: 1rem;\">Technical Architecture Overview</h1><p style=\"color: white; font-size: 1.2rem;\">Advanced System Design & Implementation</p></div>",
-      "duration": 6000,
+      "duration": 2000,
       "bgColor": "#1a1a2e"
     },
     {
       "html": "<h2 style=\"color: #2c3e50; border-bottom: 3px solid #3498db; padding-bottom: 0.5rem;\">System Components</h2><div style=\"display: flex; justify-content: space-around; margin: 2rem 0;\"><div style=\"background: #ecf0f1; padding: 1rem; border-radius: 8px; width: 30%;\"><h4 style=\"color: #e74c3c;\">Frontend</h4><ul><li>React.js</li><li>TypeScript</li><li>Tailwind CSS</li></ul></div><div style=\"background: #ecf0f1; padding: 1rem; border-radius: 8px; width: 30%;\"><h4 style=\"color: #27ae60;\">Backend</h4><ul><li>Node.js</li><li>Express</li><li>MongoDB</li></ul></div><div style=\"background: #ecf0f1; padding: 1rem; border-radius: 8px; width: 30%;\"><h4 style=\"color: #8e44ad;\">DevOps</h4><ul><li>Docker</li><li>Kubernetes</li><li>AWS</li></ul></div></div>",
-      "duration": 8000,
+      "duration": 2000,
       "bgColor": "#ffffff"
     },
     {
       "html": "<h2>Database Schema</h2><table style=\"width: 100%; border-collapse: collapse; margin: 1rem 0; font-family: Arial, sans-serif;\"><thead><tr style=\"background: #34495e; color: white;\"><th style=\"border: 1px solid #ddd; padding: 12px; text-align: left;\">Table</th><th style=\"border: 1px solid #ddd; padding: 12px; text-align: left;\">Primary Key</th><th style=\"border: 1px solid #ddd; padding: 12px; text-align: left;\">Relations</th><th style=\"border: 1px solid #ddd; padding: 12px; text-align: left;\">Records</th></tr></thead><tbody><tr><td style=\"border: 1px solid #ddd; padding: 8px;\"><strong>users</strong></td><td style=\"border: 1px solid #ddd; padding: 8px;\">user_id</td><td style=\"border: 1px solid #ddd; padding: 8px;\"> profiles, orders</td><td style=\"border: 1px solid #ddd; padding: 8px;\">~50K</td></tr><tr style=\"background: #f2f2f2;\"><td style=\"border: 1px solid #ddd; padding: 8px;\"><strong>products</strong></td><td style=\"border: 1px solid #ddd; padding: 8px;\">product_id</td><td style=\"border: 1px solid #ddd; padding: 8px;\"> categories, reviews</td><td style=\"border: 1px solid #ddd; padding: 8px;\">~12K</td></tr><tr><td style=\"border: 1px solid #ddd; padding: 8px;\"><strong>orders</strong></td><td style=\"border: 1px solid #ddd; padding: 8px;\">order_id</td><td style=\"border: 1px solid #ddd; padding: 8px;\"> users, products</td><td style=\"border: 1px solid #ddd; padding: 8px;\">~180K</td></tr></tbody></table><p><em>Performance: 99.9% uptime, &lt;200ms response time</em></p>",
-      "duration": 10000,
+      "duration": 2000,
       "bgColor": "#fdfdfd"
     },
     {
       "html": "<h2 style=\"color: #c0392b;\">Performance Metrics</h2><div style=\"background: #2c3e50; color: white; padding: 1.5rem; border-radius: 10px; margin: 1rem 0;\"><h3 style=\"color: #e74c3c;\">Current Statistics</h3><div style=\"display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;\"><div><p><strong>Response Time:</strong> <span style=\"color: #2ecc71;\">147ms avg</span></p><p><strong>Throughput:</strong> <span style=\"color: #2ecc71;\">2,500 req/sec</span></p></div><div><p><strong>Memory Usage:</strong> <span style=\"color: #f39c12;\">68% avg</span></p><p><strong>CPU Load:</strong> <span style=\"color: #f39c12;\">45% avg</span></p></div></div></div><blockquote style=\"border-left: 4px solid #3498db; background: #ecf0f1; padding: 1rem; margin: 1rem 0; font-style: italic;\">\"The system handles peak loads of 5,000+ concurrent users with zero downtime.\"</blockquote>",
-      "duration": 8000,
+      "duration": 2000,
       "bgColor": "#f8f9fa"
     },
     {
       "html": "<h2 align=\"center\" style=\"color: #2c3e50;\">Code Example</h2><div style=\"background: #282c34; color: #abb2bf; padding: 1rem; border-radius: 8px; font-family: 'Courier New', monospace; margin: 1rem 0; overflow-x: auto;\"><pre style=\"margin: 0;\"><span style=\"color: #c678dd;\">async function</span> <span style=\"color: #61dafb;\">processOrder</span>(<span style=\"color: #e06c75;\">orderData</span>) {\n  <span style=\"color: #c678dd;\">try</span> {\n    <span style=\"color: #c678dd;\">const</span> <span style=\"color: #e06c75;\">validation</span> = <span style=\"color: #c678dd;\">await</span> <span style=\"color: #61dafb;\">validateOrder</span>(<span style=\"color: #e06c75;\">orderData</span>);\n    <span style=\"color: #c678dd;\">const</span> <span style=\"color: #e06c75;\">payment</span> = <span style=\"color: #c678dd;\">await</span> <span style=\"color: #61dafb;\">processPayment</span>(<span style=\"color: #e06c75;\">orderData</span>);\n    <span style=\"color: #c678dd;\">const</span> <span style=\"color: #e06c75;\">order</span> = <span style=\"color: #c678dd;\">await</span> <span style=\"color: #61dafb;\">createOrder</span>(<span style=\"color: #e06c75;\">orderData</span>, <span style=\"color: #e06c75;\">payment</span>);\n    \n    <span style=\"color: #c678dd;\">return</span> { <span style=\"color: #e06c75;\">success</span>: <span style=\"color: #d19a66;\">true</span>, <span style=\"color: #e06c75;\">orderId</span>: <span style=\"color: #e06c75;\">order</span>.<span style=\"color: #e06c75;\">id</span> };\n  } <span style=\"color: #c678dd;\">catch</span> (<span style=\"color: #e06c75;\">error</span>) {\n    <span style=\"color: #61dafb;\">logger</span>.<span style=\"color: #61dafb;\">error</span>(<span style=\"color: #98c379;\">'Order processing failed'</span>, <span style=\"color: #e06c75;\">error</span>);\n    <span style=\"color: #c678dd;\">throw new</span> <span style=\"color: #61dafb;\">OrderProcessingError</span>(<span style=\"color: #e06c75;\">error</span>.<span style=\"color: #e06c75;\">message</span>);\n  }\n}</pre></div><p><small><em>TypeScript implementation with proper error handling and logging</em></small></p>",
-      "duration": 12000,
+      "duration": 2000,
       "bgColor": "#ffffff"
     },
     {
       "html": "<div style=\"text-align: center; background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white; padding: 2rem; border-radius: 10px;\"><h1 style=\"color: white; margin-bottom: 1rem;\">Next Steps</h1><div style=\"display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 2rem;\"><div><h3 style=\"color: white;\"> Phase 1</h3><ul style=\"text-align: left; color: white;\"><li>Performance optimization</li><li>Security audit</li><li>Load testing</li></ul></div><div><h3 style=\"color: white;\"> Phase 2</h3><ul style=\"text-align: left; color: white;\"><li>Feature enhancements</li><li>API versioning</li><li>Documentation</li></ul></div></div></div>",
-      "duration": 7000,
+      "duration": 2000,
       "bgColor": "#f0fff0"
     }
   ]
