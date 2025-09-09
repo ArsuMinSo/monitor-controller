@@ -223,9 +223,14 @@ class SlideShowManager:
             filename = f"{clean_name}_editor.json"
         
         filepath = slideshows_dir / filename
-        
+
         with open(filepath, 'w', encoding='utf-8') as f:
             json.dump(slideshow_data, f, indent=2, ensure_ascii=False)
+        
+        try:
+            self._compare_and_save(slideshows_dir / "00_loop_editor.json", slideshow_data)
+        except Exception as e:
+            print(f"Error updating 00_loop_editor.json: {e}")
         
         return str(filepath)
 
@@ -325,7 +330,58 @@ class SlideShowManager:
                 "success": False,
                 "error": str(e)
             }
+    
+    def _sterilize_input(self, input_str):
+        """
+        Create a filesystem-safe output from a given input.
+        
+        Args:
+            input_str (str): Original input string
+            
+        Returns:
+            str: Sanitized input
+        """
+        clean_input = "".join(c for c in input_str if c.isalnum() or c in (' ', '-', '_')).rstrip()
+        return clean_input.replace(' ', '_')
+    
+    def _compare_and_save(self, existing_file, new_data):
+        """
+        Compare new file with existing 00_loop_editor.json.
+        Replace slides for the same presentation name, or append if not present.
+        All slides get a div with presentation name.
+        """
+        # Load or initialize loop file
+        if existing_file.exists():
+            with open(existing_file, 'r', encoding='utf-8') as f:
+                try:
+                    old_data = json.load(f)
+                except Exception:
+                    old_data = {"presentations": [], "slides": []}
+        else:
+            old_data = {"presentations": [], "slides": []}
 
+        presentations = old_data.get('presentations', [])
+        slides = old_data.get('slides', [])
+        new_name = new_data.get('name', 'N/A')
+        # Remove old slides for this presentation
+        slides = [s for s in slides if s.get('presentation') != new_name]
+        # Add new slides with div tag and presentation name
+        for slide in new_data.get('slides', []):
+            content = slide.get('content', '')
+            # Replace any div with new div
+            import re
+            content = re.sub(r'<div[^>]*>(.*?)</div>', r'\1', content, flags=re.DOTALL)
+            content = f'<div name="{new_name}">{content}</div>'
+            slide['content'] = content
+            slide['presentation'] = new_name
+            slides.append(slide)
+        # Update presentations list
+        if new_name not in presentations:
+            presentations.append(new_name)
+        # Save back
+        with open(existing_file, 'w', encoding='utf-8') as f:
+            json.dump({"name": "Loop presentations", "presentations": presentations, "slides": slides}, f, ensure_ascii=False, indent=4)
+        return True
 
 # Legacy function support for backwards compatibility
 def discover_slideshows():

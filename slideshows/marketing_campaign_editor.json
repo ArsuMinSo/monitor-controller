@@ -1,6 +1,5 @@
 {
   "name": "Marketing Campaign Showcase",
-  "timestamp": "2025-07-31T12:20:00Z",
   "slides": [
     {
       "html": "<div style=\"background: linear-gradient(45deg, #ff6b6b, #ee5a24); color: white; text-align: center; padding: 3rem; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);\"><h1 style=\"font-size: 3rem; margin-bottom: 1rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);\">SUMMER SALE</h1><h2 style=\"font-size: 2rem; margin-bottom: 1.5rem;\">Up to 70% OFF</h2><p style=\"font-size: 1.3rem; margin-bottom: 2rem;\">Limited Time Offer - Don't Miss Out!</p><div style=\"background: rgba(255,255,255,0.2); padding: 1rem; border-radius: 10px; display: inline-block;\"><p style=\"font-size: 1.1rem; margin: 0;\">Use Code: <strong style=\"font-size: 1.4rem; color: #ffd700;\">SUMMER70</strong></p></div></div>",
@@ -27,5 +26,6 @@
       "duration": 6000,
       "bgColor": "#fff5f8"
     }
-  ]
+  ],
+  "filename": "marketing_campaign_editor"
 }

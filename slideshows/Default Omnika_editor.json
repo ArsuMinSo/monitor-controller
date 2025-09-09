@@ -1,14 +1,9 @@
 {
-  "name": "Default_Omnika_temp",
+  "name": "Default Omnika",
   "slides": [
     {
       "html": "<div align=\"center\"><img class=\"slide-image\" src=\"/slideshows/Default_Omnika_images/Default_Omnika_slide_1_img_1.png\"></div>",
       "duration": 10000,
-      "bgColor": "#f8f9fa"
-    },
-    {
-      "html": "<div align=\"center\"><img src=\"/slideshows/potvrzeni_o_studiu_images/potvrzeni_o_studiu_slide_1_img_1.png\"></div>",
-      "duration": 100000,
       "bgColor": "#f8f9fa"
     },
     {
@@ -17,18 +12,8 @@
       "bgColor": "#f8f9fa"
     },
     {
-      "html": "<div align=\"center\"><img src=\"/slideshows/potvrzeni_o_studiu_images/potvrzeni_o_studiu_slide_1_img_1.png\"></div>",
-      "duration": 100000,
-      "bgColor": "#f8f9fa"
-    },
-    {
       "html": "<div align=\"center\"><img  class=\"slide-image\"src=\"/slideshows/Default_Omnika_images/Default_Omnika_slide_3_img_1.png\"/></div>",
       "duration": 10000,
-      "bgColor": "#f8f9fa"
-    },
-    {
-      "html": "<div align=\"center\"><img src=\"/slideshows/potvrzeni_o_studiu_images/potvrzeni_o_studiu_slide_1_img_1.png\"></div>",
-      "duration": 100000,
       "bgColor": "#f8f9fa"
     },
     {
@@ -37,18 +22,8 @@
       "bgColor": "#f8f9fa"
     },
     {
-      "html": "<div align=\"center\"><img src=\"/slideshows/potvrzeni_o_studiu_images/potvrzeni_o_studiu_slide_1_img_1.png\"></div>",
-      "duration": 100000,
-      "bgColor": "#f8f9fa"
-    },
-    {
       "html": "<div align=\"center\"><img  class=\"slide-image\"src=\"/slideshows/Default_Omnika_images/Default_Omnika_slide_5_img_1.png\"/></div>",
       "duration": 10000,
-      "bgColor": "#f8f9fa"
-    },
-    {
-      "html": "<div align=\"center\"><img src=\"/slideshows/potvrzeni_o_studiu_images/potvrzeni_o_studiu_slide_1_img_1.png\"></div>",
-      "duration": 100000,
       "bgColor": "#f8f9fa"
     },
     {
@@ -57,20 +32,10 @@
       "bgColor": "#f8f9fa"
     },
     {
-      "html": "<div align=\"center\"><img src=\"/slideshows/potvrzeni_o_studiu_images/potvrzeni_o_studiu_slide_1_img_1.png\"></div>",
-      "duration": 100000,
-      "bgColor": "#f8f9fa"
-    },
-    {
       "html": "<div align=\"center\"><img  class=\"slide-image\"src=\"/slideshows/Default_Omnika_images/Default_Omnika_slide_7_img_1.png\"/></div>",
       "duration": 10000,
       "bgColor": "#f8f9fa"
-    },
-    {
-      "html": "<div align=\"center\"><img src=\"/slideshows/potvrzeni_o_studiu_images/potvrzeni_o_studiu_slide_1_img_1.png\"></div>",
-      "duration": 100000,
-      "bgColor": "#f8f9fa"
     }
   ],
-  "filename": "Default_Omnika_temp_editor"
+  "filename": "Default Omnika_editor.json"
 }
