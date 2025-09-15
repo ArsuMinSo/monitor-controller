@@ -160,7 +160,6 @@ class WebSocketManager:
         self.clients.add(websocket)
         
         self.logger.info(f"Client connected from {client_ip}:{client_port}. Total clients: {len(self.clients)}")
-        print(f"Client connected from {client_ip}:{client_port}. Total clients: {len(self.clients)}")
         
         # Display current client list
         self.display_client_info()
@@ -179,11 +178,6 @@ class WebSocketManager:
                 "type": "slideshows_update",
                 "slideshows": self.current_state["slideshows"]
             }
-            
-            # Debug: Log what we're sending
-            self.logger.info(f"Sending {len(self.current_state['slideshows'])} slideshows to new client")
-            for i, slideshow in enumerate(self.current_state["slideshows"]):
-                self.logger.info(f"  Slideshow {i+1}: {slideshow.get('name', 'Unknown')} (ID: {slideshow.get('id', 'Unknown')})")
             
             await websocket.send(json.dumps(slideshows_message))
             
@@ -217,7 +211,6 @@ class WebSocketManager:
             self.clients.discard(websocket)
             
             self.logger.info(f"Client {client_ip}:{client_port} disconnected. Total clients: {len(self.clients)}")
-            print(f"Client {client_ip}:{client_port} disconnected. Total clients: {len(self.clients)}")
             
             # Display updated client list
             if self.clients:
