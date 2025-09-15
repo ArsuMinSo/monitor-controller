@@ -1,21 +1,97 @@
 # Presentator Slideshow System Dependencies
-# Install with: py -m pip install -r requirements.txt
+# =============================================
+# 
+# This file contains all Python package dependencies required for the Presentator system.
+# 
+# INSTALLATION INSTRUCTIONS:
+# --------------------------
+# 
+# Option 1: Virtual Environment (Recommended)
+# -------------------------------------------
+# python3 -m venv .venv
+# source .venv/bin/activate        # Linux/Mac
+# .venv\Scripts\activate           # Windows
+# pip install -r requirements.txt
+# 
+# Option 2: System-wide Installation
+# ----------------------------------
+# pip install -r requirements.txt
+# 
+# Option 3: Development Environment
+# --------------------------------
+# pip install -r requirements.txt --upgrade
+# 
 
-# Core dependencies for slideshow system
+# CORE SLIDESHOW SYSTEM DEPENDENCIES
+# ==================================
+
+# WebSocket communication for real-time updates
 websockets>=10.0
+
+# PowerPoint file parsing and manipulation
 python-pptx>=0.6.21
+
+# Image processing and manipulation
 Pillow>=8.0.0
 
-# Standard library modules used (no installation needed):
-# - asyncio: Asynchronous programming
-# - os, sys, pathlib: File system operations  
-# - threading: Multi-threading support
-# - http.server, socketserver: HTTP server functionality
-# - json: JSON parsing and generation
-# - re: Regular expressions
-# - socket: Network communication
-# - subprocess: Process management
-# - tempfile: Temporary file handling
-# - shutil: File operations
-# - typing: Type hints
-# - cgi: Form data parsing (deprecated in Python 3.11+, removed in 3.13+)
+# IMAGE CONVERSION DEPENDENCIES
+# =============================
+
+# PDF to image conversion (requires poppler-utils on system)
+pdf2image>=1.16.0
+
+# SYSTEM DEPENDENCIES (must be installed separately)
+# =================================================
+# 
+# These are not Python packages and must be installed via your system package manager:
+# 
+# For Ubuntu/Debian:
+# ------------------
+# sudo apt update
+# sudo apt install poppler-utils libreoffice
+# 
+# For CentOS/RHEL:
+# ----------------
+# sudo yum install poppler-utils libreoffice
+# 
+# For macOS (with Homebrew):
+# -------------------------
+# brew install poppler libreoffice
+# 
+# For Windows:
+# -----------
+# Download and install LibreOffice from: https://www.libreoffice.org/download/
+# Download poppler for Windows from: https://github.com/oschwartz10612/poppler-windows
+# 
+# DEPENDENCY DESCRIPTIONS:
+# =======================
+# 
+# websockets: Real-time communication between web interface and server
+# python-pptx: Parse PowerPoint files and extract content/images
+# Pillow: Image processing, resizing, and format conversion
+# pdf2image: Convert PDF pages to PNG images (requires poppler-utils)
+# poppler-utils: PDF rendering utilities (system dependency)
+# libreoffice: Office suite for PPTX to PDF conversion (system dependency)
+# 
+# FEATURE SUPPORT:
+# ===============
+# 
+# Text/HTML Conversion Mode:
+# - websockets, python-pptx, Pillow
+# 
+# Image Conversion Mode:
+# - All above + pdf2image, poppler-utils, libreoffice
+# 
+# TROUBLESHOOTING:
+# ===============
+# 
+# Error: "No module named 'pptx'"
+# Solution: pip install python-pptx
+# 
+# Error: "Unable to get page count. Is poppler installed and in PATH?"
+# Solution: Install poppler-utils system package
+# 
+# Error: "LibreOffice conversion failed"
+# Solution: Install LibreOffice and ensure it's in system PATH
+# 
+# For more help, see documentation in docs/ directory.

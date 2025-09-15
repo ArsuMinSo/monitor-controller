@@ -8,5 +8,5 @@
       }
     ]
   },
-  "files.autoSave": "onFocusChange"
+  "files.autoSave": "onFocusChange",
 }

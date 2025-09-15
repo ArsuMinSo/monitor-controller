@@ -98,6 +98,13 @@
                             <label for="slideshowName">Slideshow name:</label>
                             <input type="text" id="slideshowName" name="name" placeholder="My Presentation" required>
                         </div>
+                        <div class="upload-field">
+                            <label for="conversionMode">Conversion mode:</label>
+                            <select id="conversionMode" name="conversionMode">
+                                <option value="text">Text/HTML (editable content)</option>
+                                <option value="images">Images (preserves exact appearance)</option>
+                            </select>
+                        </div>
                         <button type="submit" class="btn btn-success" id="uploadBtn" title="Upload PowerPoint file as new slideshow">
                             <img src="icons/upload.svg" class="icon" alt="Upload">Upload
                         </button>
@@ -646,6 +653,7 @@
             const uploadBtn = document.getElementById('uploadBtn');
             const fileInput = document.getElementById('pptxFile');
             const nameInput = document.getElementById('slideshowName');
+            const modeSelect = document.getElementById('conversionMode');
 
             // Auto-fill slideshow name from file name
             fileInput.addEventListener('change', function() {
@@ -661,6 +669,7 @@
                 
                 const formData = new FormData(uploadForm);
                 const file = fileInput.files[0];
+                const conversionMode = modeSelect.value;
                 
                 if (!file) {
                     showUploadStatus('Please select a file', 'error');
@@ -674,11 +683,15 @@
                 
                 // Show uploading status
                 uploadBtn.disabled = true;
+                const modeText = conversionMode === 'images' ? 'image-based' : 'text/HTML';
                 uploadBtn.innerHTML = '<img src="icons/convert.svg" class="icon" alt="Converting">Converting...';
-                showUploadStatus('Uploading and converting PowerPoint file...', 'info');
+                showUploadStatus(`Uploading and converting PowerPoint file (${modeText} mode)...`, 'info');
                 
                 try {
-                    const response = await fetch('/api/upload_pptx', {
+                    // Choose endpoint based on conversion mode
+                    const endpoint = conversionMode === 'images' ? '/api/upload_pptx_images' : '/api/upload_pptx';
+                    
+                    const response = await fetch(endpoint, {
                         method: 'POST',
                         body: formData
                     });
@@ -686,12 +699,14 @@
                     const result = await response.json();
                     
                     if (response.ok && result.success) {
+                        const modeInfo = result.conversion_type ? ` (${result.conversion_type})` : '';
                         showUploadStatus(
-                            `Success! Converted ${result.slides} slides. Slideshow "${result.filename}" is ready to use.`, 
+                            `Success! Converted ${result.slide_count} slides${modeInfo}. Slideshow "${result.slideshow_name}" is ready to use.`, 
                             'success'
                         );
                         uploadForm.reset();
                         nameInput.value = '';
+                        modeSelect.value = 'text'; // Reset to default
                         
                         // Refresh slideshows list
                         controller.refreshSlideshows();

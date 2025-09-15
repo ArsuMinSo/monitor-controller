@@ -6,7 +6,7 @@
 
 ## Overview
 
-Presentator is a powerful real-time slideshow system designed for digital signage and presentations. 
+Presentator is a powerful real-time slideshow system designed for digital signage and presentations.
 The system enables synchronized slideshow control across multiple network devices using modern WebSocket technology.
 
 ## Features
@@ -91,7 +91,7 @@ The system uses WebSocket communication on port 50002 for real-time updates:
 
 ### File Structure
 
-```
+``` md
 monitor-controller/
 app.py                 # Main application
 src/                   # Core modules

@@ -95,6 +95,7 @@ class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         - /api/load_slideshow: Load specific slideshow
         - /api/delete_slideshow: Delete slideshow
         - /api/upload_pptx: Upload and convert PowerPoint files
+        - /api/upload_pptx_images: Upload and convert PowerPoint files to images
         
         Handles exceptions and returns appropriate HTTP error codes.
         """
@@ -111,6 +112,8 @@ class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                 self.handle_delete_slideshow()
             elif self.path == '/api/upload_pptx':
                 self.handle_upload_pptx()
+            elif self.path == '/api/upload_pptx_images':
+                self.handle_upload_pptx_images()
             else:
                 self.send_error(404, "API endpoint not found")
         except Exception as e:
@@ -372,6 +375,98 @@ class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             
             try:
                 result = self.slideshow_manager.convert_pptx_file(temp_file, slideshow_name)
+                
+                # Clean up
+                os.unlink(temp_file)
+                os.rmdir(temp_dir)
+                
+                if result["success"]:
+                    slideshows = self.slideshow_manager.discover_slideshows()
+                    self.websocket_manager.update_slideshows_list(slideshows)
+                
+                self.send_response(200)
+                self.send_header('Content-type', 'application/json')
+                self.send_header('Access-Control-Allow-Origin', '*')
+                self.end_headers()
+                self.wfile.write(json.dumps(result).encode())
+                
+            except Exception as conv_error:
+                if temp_file.exists():
+                    os.unlink(temp_file)
+                if Path(temp_dir).exists():
+                    os.rmdir(temp_dir)
+                raise conv_error
+                
+        except Exception as e:
+            self.send_error(500, f"Upload failed: {e}")
+
+    def handle_upload_pptx_images(self):
+        """
+        Handle POST /api/upload_pptx_images endpoint.
+        
+        Accepts PowerPoint (.pptx) file uploads and converts them to image-based slideshow format.
+        Each slide is rendered as a PNG image instead of extracting text content.
+        
+        Request:
+            Content-Type: multipart/form-data
+            Fields:
+                - file: PPTX file data
+                - name: Optional slideshow name (defaults to "Uploaded Presentation")
+                
+        Response:
+            200: Conversion result with success status and details
+            400: Bad request (invalid file type or missing file)
+            500: Internal server error during conversion
+        """
+        try:
+            import tempfile
+            import os
+            from pathlib import Path
+
+            content_length = int(self.headers['Content-Length'])
+            content_type = self.headers.get('Content-Type')
+
+            if not content_type or 'multipart/form-data' not in content_type:
+                self.send_error(400, "Content-Type must be multipart/form-data")
+                return
+
+            # Parse multipart form data
+            boundary = content_type.split("boundary=")[-1].encode()
+            body = self.rfile.read(content_length)
+            parts = body.split(b"--" + boundary)
+            
+            file_data = None
+            filename = None
+            slideshow_name = "Uploaded Presentation"
+
+            for part in parts:
+                if b'Content-Disposition' in part and b'\r\n\r\n' in part:
+                    headers, _, value = part.partition(b'\r\n\r\n')
+                    headers_str = headers.decode(errors='ignore')
+                    
+                    if 'name="file"' in headers_str:
+                        filename_marker = 'filename="'
+                        if filename_marker in headers_str:
+                            filename_start = headers_str.index(filename_marker) + len(filename_marker)
+                            filename_end = headers_str.index('"', filename_start)
+                            filename = headers_str[filename_start:filename_end]
+                            file_data = value.rstrip(b'\r\n')
+                    elif 'name="name"' in headers_str:
+                        slideshow_name = value.decode(errors='ignore').strip().rstrip('\r\n')
+
+            if not file_data or not filename or not filename.lower().endswith('.pptx'):
+                self.send_error(400, "Valid PPTX file required")
+                return
+            
+            # Save and convert file to images
+            temp_dir = tempfile.mkdtemp()
+            temp_file = Path(temp_dir) / filename
+            
+            with open(temp_file, 'wb') as f:
+                f.write(file_data)
+            
+            try:
+                result = self.slideshow_manager.convert_pptx_file(temp_file, slideshow_name, use_images=True)
                 
                 # Clean up
                 os.unlink(temp_file)

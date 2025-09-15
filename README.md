@@ -47,4 +47,42 @@ Monitor Controller is a slideshow management system that enables you to create, 
 
 ## Getting Started
 
-See the [instalation guide](./script/README.md) for installation and setup instructions.
+### Quick Installation
+
+1. **Install Python Dependencies:**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+2. **Install System Dependencies:**
+   ```bash
+   # Ubuntu/Debian
+   sudo apt install poppler-utils libreoffice
+   ```
+
+3. **Run the Application:**
+   ```bash
+   python3 app.py
+   ```
+
+4. **Open in Browser:**
+   ```
+   http://localhost:8080
+   ```
+
+### Detailed Setup
+
+For complete installation instructions, troubleshooting, and platform-specific setup, see:
+- **[INSTALLATION.md](./INSTALLATION.md)** - Comprehensive installation guide
+- **[script/README.md](./script/README.md)** - Alternative installation methods
+
+### PowerPoint Conversion
+
+The system supports two PowerPoint conversion modes:
+
+- **Text/HTML Mode**: Extracts and preserves editable text content
+- **Image Mode**: Converts slides to images preserving exact visual appearance
+
+Requirements for image conversion:
+- LibreOffice (for PPTX PDF conversion)
+- poppler-utils (for PDF image conversion)

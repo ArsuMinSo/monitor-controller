@@ -10,7 +10,7 @@ import json
 import os
 import logging
 from pathlib import Path
-from .pptx_parse import convert_pptx_file_free
+from .pptx_parse import convert_pptx_file_free, convert_pptx_file_to_images
 from .utils import log
 
 
@@ -289,7 +289,7 @@ class SlideShowManager:
             print(f"Error deleting slideshow {slideshow_id}: {e}")
             return self.slideshows
 
-    def convert_pptx_file(self, pptx_path, slideshow_name=None):
+    def convert_pptx_file(self, pptx_path, slideshow_name=None, use_images=False):
         """
         Convert PowerPoint file to slideshow format.
         
@@ -300,6 +300,7 @@ class SlideShowManager:
             pptx_path (Path or str): Path to the PowerPoint file
             slideshow_name (str, optional): Name for the converted slideshow.
                 If not provided, uses filename
+            use_images (bool): If True, converts slides to images instead of text/HTML
                 
         Returns:
             dict: Conversion result with fields:
@@ -309,7 +310,10 @@ class SlideShowManager:
                 - output_path (str): Path to saved slideshow file (if successful)
         """
         try:
-            output_path = convert_pptx_file_free(pptx_path, slideshow_name)
+            if use_images:
+                output_path = convert_pptx_file_to_images(pptx_path, slideshow_name)
+            else:
+                output_path = convert_pptx_file_free(pptx_path, slideshow_name)
             
             # Refresh slideshows list
             self.discover_slideshows()
@@ -319,11 +323,13 @@ class SlideShowManager:
                 slideshow_data = json.load(f)
                 slide_count = len(slideshow_data.get('slides', []))
             
+            conversion_type = "image-based" if use_images else "text/HTML"
             return {
                 "success": True,
                 "slideshow_name": slideshow_data.get('name', 'Converted Slideshow'),
                 "slide_count": slide_count,
-                "message": f"Converted {slide_count} slides successfully"
+                "conversion_type": conversion_type,
+                "message": f"Converted {slide_count} slides successfully ({conversion_type})"
             }
         except Exception as e:
             return {

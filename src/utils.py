@@ -101,3 +101,37 @@ def log(message, level='INFO'):
         INFO: Application started
     """
     print(f"\n\t{level}: {message}\n")
+
+def sterile_filename(filename):
+    """
+    Sanitize a filename by removing potentially unsafe characters.
+    
+    Args:
+        filename (str): The original filename
+        
+    Returns:
+        str: Sanitized filename safe for filesystem use
+        
+    Example:
+        >>> sterile_filename("my*file?.txt")
+        'myfile.txt'
+    """
+    import re
+    return re.sub(r'[^a-zA-Z0-9_.-]', '', filename)
+
+def sterile_string(s):
+    """
+    Sanitize a string by removing potentially unsafe characters.
+    
+    Args:
+        s (str): The original string
+        
+    Returns:
+        str: Sanitized string safe for general use
+        
+    Example:
+        >>> sterile_string("Hello, World!")
+        'Hello World'
+    """
+    import re
+    return re.sub(r'[^a-zA-Z0-9\s]', '', s)

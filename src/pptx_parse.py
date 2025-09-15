@@ -14,12 +14,17 @@ Features:
 - HTML generation for web display
 """
 
+from datetime import datetime
 import json
 from pathlib import Path
 from pptx import Presentation
 from pptx.enum.shapes import MSO_SHAPE_TYPE
 from PIL import Image
 import io
+import sys
+import os
+import subprocess
+from pdf2image import convert_from_path
 import re
 
 
@@ -398,11 +403,94 @@ def convert_pptx_to_slideshow_free(pptx_path, output_name=None):
     # Create slideshow structure
     slideshow_data = {
         "name": output_name,
-        "timestamp": "2025-08-01T12:00:00Z",
+        "timestamp": datetime.now().isoformat(),
         "slides": slides_data
     }
     
     return slideshow_data
+
+
+
+def export_pptx_to_pdf(pptx_path, pdf_path=None):
+    """
+    Export PPTX file to PDF using LibreOffice (cross-platform).
+    Args:
+        pptx_path (str): Path to PPTX file
+        pdf_path (str, optional): Output PDF path
+    Returns:
+        str: Path to exported PDF file
+    """
+    pptx_path = os.path.abspath(pptx_path)
+    if not pdf_path:
+        pdf_path = os.path.splitext(pptx_path)[0] + ".pdf"
+    pdf_path = os.path.abspath(pdf_path)
+    
+    # Use LibreOffice in headless mode to convert PPTX to PDF
+    output_dir = os.path.dirname(pdf_path)
+    try:
+        subprocess.run([
+            "libreoffice", "--headless", "--convert-to", "pdf",
+            "--outdir", output_dir, pptx_path
+        ], check=True, capture_output=True)
+        
+        # LibreOffice creates PDF with same name as input file
+        expected_pdf = os.path.join(output_dir, os.path.splitext(os.path.basename(pptx_path))[0] + ".pdf")
+        
+        # Rename to desired output path if different
+        if expected_pdf != pdf_path and os.path.exists(expected_pdf):
+            os.rename(expected_pdf, pdf_path)
+            
+        return pdf_path
+    except subprocess.CalledProcessError as e:
+        raise RuntimeError(f"LibreOffice conversion failed: {e}")
+    except FileNotFoundError:
+        raise RuntimeError("LibreOffice not found. Please install LibreOffice for PPTX to PDF conversion.")
+
+
+def convert_pdf_to_images(pdf_path, output_dir):
+    """
+    Convert PDF pages to images using pdf2image.
+    Args:
+        pdf_path (str): Path to PDF file
+        output_dir (str): Directory to save images
+    Returns:
+        list: List of image file paths
+    """
+    os.makedirs(output_dir, exist_ok=True)
+    images = convert_from_path(pdf_path)
+    image_paths = []
+    for i, img in enumerate(images):
+        img_path = os.path.join(output_dir, f"slide_{i+1}.png")
+        img.save(img_path, "PNG")
+        image_paths.append(img_path)
+    return image_paths
+
+
+def convert_pptx_to_images(pptx_path, output_name=None):
+    """
+    Convert PPTX to images by exporting to PDF and then to PNGs.
+    Args:
+        pptx_path (str): Path to PPTX file
+        output_name (str, optional): Output base name
+    Returns:
+        list: List of image file paths
+    """
+    pptx_file = Path(pptx_path)
+    if not pptx_file.exists():
+        raise FileNotFoundError(f"PowerPoint file not found: {pptx_path}")
+    if not output_name:
+        output_name = pptx_file.stem
+    clean_name = "".join(c for c in output_name if c.isalnum() or c in (' ', '-', '_')).strip()
+    presentation_name = clean_name.replace(' ', '_')
+    slideshows_dir = Path("slideshows")
+    slideshows_dir.mkdir(exist_ok=True)
+    pdf_path = slideshows_dir / f"{presentation_name}.pdf"
+    # Export PPTX to PDF
+    pdf_path = export_pptx_to_pdf(str(pptx_file), str(pdf_path))
+    # Convert PDF to images
+    image_dir = slideshows_dir / f"{presentation_name}_images"
+    image_paths = convert_pdf_to_images(str(pdf_path), str(image_dir))
+    return image_paths
 
 
 def save_converted_slideshow_free(slideshow_data, filename=None):
@@ -492,14 +580,62 @@ def convert_pptx_file_free(pptx_path, output_name=None):
         return None
 
 
-if __name__ == "__main__":
-    import sys
+def convert_pptx_file_to_images(pptx_path, output_name=None):
+    """
+    Convert PPTX file to image-based slideshow format.
     
-    if len(sys.argv) < 2:
-        print("Usage: python pptx_parse_free.py <pptx_file> [output_name]")
-        sys.exit(1)
+    Alternative conversion method that renders each slide as an image
+    instead of extracting text content. Uses LibreOffice to export
+    PPTX to PDF, then converts PDF pages to PNG images.
     
-    pptx_file = sys.argv[1]
-    output_name = sys.argv[2] if len(sys.argv) > 2 else None
-    
-    convert_pptx_file_free(pptx_file, output_name)
+    Args:
+        pptx_path (str or Path): Path to the PowerPoint file to convert
+        output_name (str, optional): Name for the output slideshow
+        
+    Returns:
+        str or None: Path to the saved slideshow file if successful, None if failed
+    """
+    try:
+        print(f"Converting PowerPoint file to images: {pptx_path}")
+        
+        # Convert PPTX to images
+        image_paths = convert_pptx_to_images(pptx_path, output_name)
+        
+        # Create slideshow data with image slides
+        pptx_file = Path(pptx_path)
+        if not output_name:
+            output_name = pptx_file.stem
+        
+        slides_data = []
+        for i, img_path in enumerate(image_paths):
+            # Get relative path for web access
+            img_filename = os.path.basename(img_path)
+            img_dir = os.path.basename(os.path.dirname(img_path))
+            relative_path = f"/slideshows/{img_dir}/{img_filename}"
+            
+            slide_data = {
+                "html": f'<div align="center"><img class="slide-image" src="{relative_path}"/></div>',
+                "duration": 5000,
+                "bgColor": "#ffffff"
+            }
+            slides_data.append(slide_data)
+        
+        slideshow_data = {
+            "name": output_name,
+            "timestamp": datetime.now().isoformat(),
+            "slides": slides_data
+        }
+        
+        # Save slideshow data
+        output_path = save_converted_slideshow_free(slideshow_data, str(output_name) + "_editor.json")
+        
+        print(f"Image conversion completed successfully!")
+        print(f"Output file: {output_path}")
+        print(f"Slides converted: {len(image_paths)}")
+        print(f"Images saved to: {os.path.dirname(image_paths[0]) if image_paths else 'N/A'}")
+        
+        return output_path
+        
+    except Exception as e:
+        print(f"Error converting PowerPoint file to images: {e}")
+        return None
